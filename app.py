@@ -1,4 +1,6 @@
 #Imports
+from urllib import response
+
 from flask import Flask, flash, request, redirect, url_for, render_template, jsonify
 from os.path import join,dirname,realpath
 from time import sleep
@@ -12,6 +14,10 @@ import re
 
 app = Flask(__name__)
 REQUEST_NAMES = ["username","password"]
+
+#Requests session
+session = requests.Session()
+session.verify = certifi.where()
 
 # Delte unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
@@ -46,7 +52,7 @@ def func():
     username = request.form.get("username")
     password = request.form.get("password")
     try:
-        response = requests.post("https://is.psjg.cz/sign/in", data={                                 
+        response = session.post("https://is.psjg.cz/sign/in", data={                                 
             "name": username,
             "password": password,
             "signIn": "Přihlásit se",
@@ -62,16 +68,32 @@ def func():
         elif subjects[0] == "ERROR":
             print(f"{subjects[1]},\n{subjects[2]}")
         
-        
+        # Read subjects
+        subjects = []
         csvfile.seek(0)
-        reader = csv.DictReader(csvfile, delimiter=';')
+        reader = csv.reader(csvfile, delimiter=';')
+        next(reader) #Skip header row
         for row in reader:
-            print(row)
+            subjects.append(row)
+        response2 = session.get("https://is.psjg.cz/student/student-exam-overview",
+                        params={
+                            "studentExamOverview-examGrid-id": "1",
+                            "studentId": "3881",
+                            "subjectId": "1619",
+                            "do": "studentExamOverview-examGrid-export"
+                        },
+                        verify=certifi.where())
+        print(response2.status_code)
+        print(response2.text)
+        print(response2)
                      
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
             return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo")        
         else:
-            return response.text
+            file = open("test.html","w",encoding="utf-8")
+            file.write(response2.text)
+            file.close()
+            return response2.text
     except Exception as e:
         print(f"\n{e}\n")
         return f"<h1>Máťa něco pokazil...</h1><br><h3>Chyba:</h3><br>{e}"
