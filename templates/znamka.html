@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="znamka.css">
-    <h1>test</h1>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/znamka.css') }}">
+
 
 </head>
+
 <body>
     <div class="container">
-        <div class = "znamka">
+        {%for row in znamky%}
+        <div class="znamka">           
             <div class="grid">
-            <div class="grid1">1</div>
-            <div class="grid2">6.7.2069</div>
-            <div class="grid3">6,7/10</div>
-            <div class="grid4">67%</div>
-            <div class="grid5"><b>Brainrot test</b><hr></div>
-            <div class="grid6">Child 6</div>
-            <div class="grid7">Nejlepší práce ze třídy</div>
-            </div>
+                <div class="grid1">{{znamka}}</div>
+                <div class="grid2">{{row[0]}}</div>
+                <div class="grid3">{{row[4]}}<hr></div>
+                <div class="grid4">{{row[5]}}</div>
+                <div class="grid5"><b>{{row[1]}}</b><hr></div>
+                <div class="grid6">{{row[3]}}</div>
+                <div class="grid7">{{row[6]}}</div>
+            </div>            
         </div>
+        {%endfor%}
     </div>
 
 </body>
+
 </html>

@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>Zimčík Lukáš | PSJG</title>
+
+	<link rel="stylesheet" type="text/css" href="/bower_components/happy/dist/happy.css">
+	<link rel="stylesheet" type="text/css" href="/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+	<link rel="stylesheet" type="text/css" href="/bower_components/ublaboo-datagrid/assets/dist/datagrid.css">
+	<link rel="stylesheet" type="text/css" href="/bower_components/ublaboo-datagrid/assets/dist/datagrid-spinners.css">
+	<link rel="stylesheet" type="text/css" href="/bower_components/bootstrap-select/dist/css/bootstrap-select.css">
+	<link rel="stylesheet" type="text/css" href="/bower_components/trumbowyg/dist/ui/trumbowyg.css">
+	<link rel="stylesheet" type="text/css" href="/css/multi-select.dist.css">
+
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap-select.min.css">
+
+	<script src="/bower_components/moment/min/moment-with-locales.min.js"></script>
+	<script>moment.locale('cs');</script>
+	<script src="/bower_components/chart.js/dist/Chart.min.js"></script>
+
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<link href="/css/sb-admin.css" rel="stylesheet">
+	<script src="/bower_components/jquery/dist/jquery.js"></script>
+	<link rel="stylesheet" href="/css/style.css?v=395">
+</head>
+<body style="-moz-transform-origin: 0 0;"class="fixed-nav bg-blue " id="page-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-white absolute-top" id="mainNav">
+	<a class="navbar-brand" href="/"><img src="/images/logo.png" alt="PSJG"></a>
+	<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+	<div class="collapse navbar-collapse" id="navbarResponsive">
+		<ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
+			<li class="nav-item" data-key="H" data-toggle="tooltip" data-placement="right" title="Hodnocení">
+				<a class="nav-link active" href="/">
+					<i class="fa fa-fw  fa-star"></i>&nbsp;<span class="nav-link-text">Hodnocení</span>
+				</a>
+			</li>
+            <li class="nav-item" data-key="S" data-toggle="tooltip" data-placement="right" title="Zkoušení">
+                <a class="nav-link" href="/exam/student-view">
+                    <i class="fa fa-fw fa-commenting"></i>&nbsp;<span class="nav-link-text">Budoucí zkoušení</span>
+                </a>
+            </li>
+			<li class="nav-item" data-key="P" data-toggle="tooltip" data-placement="right" title="Téma studentského portfolia">
+				<a class="nav-link" href="/achievement/view/3881">
+					<i class="fa fa-fw fa-trophy"></i>&nbsp;<span class="nav-link-text">Studentské portfolio</span>
+				</a>
+			</li>
+            <li class="nav-item" data-key="S" data-toggle="tooltip" data-placement="right" title="Tematické plány">
+                <a class="nav-link" href="/theme-plan/student-view">
+                    <i class="fa fa-fw fa-calendar-check-o"></i>&nbsp;<span class="nav-link-text">Tematické plány</span>
+                </a>
+            </li>
+			<li class="nav-item" data-key="H" data-toggle="tooltip" data-placement="right" title="Karta studenta">
+				<a class="nav-link" href="/score/detail">
+					<i class="fa fa-fw  fa-book"></i>&nbsp;<span class="nav-link-text">Karta studenta</span>
+				</a>
+			</li>
+
+			<li class="nav-item" data-key="F" data-toggle="tooltip" data-placement="right" title="Nahlášení problému">
+				<a class="nav-link" href="/feedback/add">
+					<i class="fa fa-fw fa-bug"></i>&nbsp;<span class="nav-link-text">Nahlášení problému</span>
+				</a>
+			</li>
+			<li class="nav-item" data-key="M" data-toggle="tooltip" data-placement="right" title="Profil">
+				<a class="nav-link" href="/user/edit">
+					<i class="fa fa-fw fa-user-circle-o"></i>&nbsp;<span class="nav-link-text">Profil</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="navbar-nav navbar-top-left">
+			<li class="nav-item">
+				<a class="nav-link text-center mobile-hidden" id="sidenavToggler">
+					<i class="fa fa-fw fa-angle-left"></i>
+				</a>
+			</li>
+		</ul>
+		<ul class="navbar-nav ml-auto">
+			<li class="nav-item nav-username">
+				Zimčík Lukáš
+			</li>
+			<li class="d-none d-xl-block">
+				<div class="btn-group font-resize-wrapper" role="group" >
+					<button title="Zmenšit písmo" type="button" class="btn btn-font decreaseFontSize disabled">-</button>
+					<button title="Resetovat písmo" type="button" class="btn btn-font resetFontSize">A</button>
+					<button title="Zvětšit písmo" type="button" class="btn btn-font increaseFontSize">+</button>
+  				</div>
+			</li>
+			<li class="nav-item">
+				<form action="/" method="post" id="frm-switchSemester">
+					<select name="semester" id="frm-switchSemester-semester" data-live-search class="autosubmit"><option value="1">2018/19 - První pololetí</option><option value="2">2018/19 - Druhé pololetí</option><option value="3">2019/20 - První pololetí</option><option value="4">2019/20 - Druhé pololetí</option><option value="5">2020/21 - První pololetí</option><option value="6">2020/21 - Druhé pololetí</option><option value="7">2021/22 - První pololetí</option><option value="8">2021/22 - Druhé pololetí</option><option value="9">2022/23 - První pololetí</option><option value="10">2022/23 - Druhé pololetí</option><option value="11">2023/24 - První pololetí</option><option value="12">2023/24 - Druhé pololetí</option><option value="13">2024/25 - První pololetí</option><option value="14">2024/25 - Druhé pololetí</option><option value="15">2025/26 - První pololetí</option><option value="16" selected>2025/26 - Druhé pololetí</option><option value="17">2026/27 - První pololetí</option></select>
+				<input type="hidden" name="_do" value="switchSemester-submit"><!--[if IE]><input type=IEbug disabled style="display:none"><![endif]-->
+</form>
+
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="modal" data-target="#logoutModal">
+				<i class="fa fa-fw fa-sign-out"></i>Odhlásit se</a>
+			</li>
+      	</ul>
+	</div>
+</nav>
+<div class="content-wrapper">
+	<div class="container-fluid">
+		<div class="flashes" id="snippet--flashes">
+		</div>
+<div class="page-header">
+    <h1 class="title"><span>Zimčík Lukáš</span></h1>
+</div>
+<div class="row">
+    <div class="col-xl-6 col-lg-8">
+        <div class="tf-wrapper">
+<table class="table">
+    <thead>
+    <tr>
+        <th>Předmět</th>
+        <th>Bodové hodnocení</th>
+        <th>Známka</th>
+        <th>Výsledná známka</th>
+    </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1619&amp;studentId=3881">
+                        Anglický jazyk - Aj
+                    </a>
+
+                </td>
+                <td>
+                        220,0 / 237,0
+                        (92,83%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1662&amp;studentId=3881">
+                        Biologie - Bi
+                    </a>
+
+                </td>
+                <td>
+                        89,0 / 97,0
+                        (91,75%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1661&amp;studentId=3881">
+                        Chemie - Ch
+                    </a>
+
+                </td>
+                <td>
+                        50,8 / 62,0
+                        (81,94%)
+                </td>
+                <td>
+                            2
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1618&amp;studentId=3881">
+                        Český jazyk a literatura - ČjL
+                    </a>
+
+                </td>
+                <td>
+                        51,0 / 54,0
+                        (94,44%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1621&amp;studentId=3881">
+                        Dějepis - Dě
+                    </a>
+
+                </td>
+                <td>
+                        25,5 / 32,0
+                        (79,69%)
+                </td>
+                <td>
+                            3
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1660&amp;studentId=3881">
+                        Fyzika - Fy
+                    </a>
+
+                </td>
+                <td>
+                        38,5 / 39,0
+                        (98,72%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1663&amp;studentId=3881">
+                        Informatika a výpočet.technika - Inf
+                    </a>
+
+                </td>
+                <td>
+                        16,5 / 20,0
+                        (82,50%)
+                </td>
+                <td>
+                            2
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1659&amp;studentId=3881">
+                        Matematika - Ma
+                    </a>
+
+                </td>
+                <td>
+                        42,0 / 46,0
+                        (91,30%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1615&amp;studentId=3881">
+                        Německý jazyk - Nj
+                    </a>
+
+                </td>
+                <td>
+                        52,5 / 62,0
+                        (84,68%)
+                </td>
+                <td>
+                            2
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1794&amp;studentId=3881">
+                        Občanská výchova - Ov
+                    </a>
+
+                </td>
+                <td>
+                        27,0 / 34,0
+                        (79,41%)
+                </td>
+                <td>
+                            3
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1614&amp;studentId=3881">
+                        Ruský jazyk - Rjn
+                    </a>
+
+                </td>
+                <td>
+                        29,5 / 34,0
+                        (86,76%)
+                </td>
+                <td>
+                            2
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1666&amp;studentId=3881">
+                        Tělesná výchova - Tv
+                    </a>
+
+                </td>
+                <td>
+                        8,0 / 8,0
+                        (100,00%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1665&amp;studentId=3881">
+                        Estetická výchova-výtvarná - Vv
+                    </a>
+
+                </td>
+                <td>
+                        20,0 / 20,0
+                        (100,00%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="/student/student-exam-overview?subjectId=1622&amp;studentId=3881">
+                        Zeměpis - Ze
+                    </a>
+
+                </td>
+                <td>
+                        25,5 / 27,0
+                        (94,44%)
+                </td>
+                <td>
+                            1
+                </td>
+                <td>
+                </td>
+            </tr>
+    </tbody>
+    <tr class="foot">
+        <td>Celkový průměrný prospěch</td>
+        <td>
+                1,57
+        </td>
+    </tr>
+</table>
+<div class="text-muted font-weight-normal" style="padding-left: 0.75rem">
+    Do průměru nejsou zohledněny předměty hodnocené jako N
+</div>
+        </div>
+    </div>
+    <div class="col-xl-6 col-lg-8">
+        <div class="tf-wrapper">
+<div class="datagrid datagrid-studentScoreGrid" data-refresh-state="/?do=studentScoreGrid-refreshState">
+	<div id="snippet-studentScoreGrid-grid">
+			<form action="/" method="post" id="frm-studentScoreGrid-filter" class="ajax">
+					<div class="row text-right datagrid-collapse-filters-button-row">
+						<div class="col-sm-12">
+							<button class="btn btn-xs btn-primary active" type="button" data-toggle="collapse" data-target="#datagrid-studentScoreGrid-row-filters">
+								<i class="fa fa-filter"></i> Zobrazit filtry
+							</button>
+						</div>
+					</div>
+
+					<div class="row-filters collapse" id="datagrid-studentScoreGrid-row-filters">
+						<div class="row">
+							<div class="datagrid-row-outer-filters-group col-sm-6">
+								
+
+
+	<div class="row">
+		<label for="frm-studentScoreGrid-filter-filter-date-from" class="col-sm-3 control-label">Datum</label>
+		<div class="col-sm-4 form-inline">
+			<div class="input-group input-group-sm">
+				<input type="text" name="filter[date][from]" data-provide="datepicker" data-date-orientation="bottom" data-date-format="d. m. yyyy" data-date-today-highlight="true" data-date-autoclose="true" data-autosubmit class="form-control input-sm form-control-sm" data-autosubmit-change id="frm-studentScoreGrid-filter-filter-date-from">
+				<label class="input-group-addon input-group-append" for="frm-studentScoreGrid-filter-filter-date-from">
+					<span class="input-group-text">
+						<i class="fa fa-calendar"></i>
+					</span>
+				</label>
+			</div>
+		</div>
+		<label for="frm-studentScoreGrid-filter-filter-date-to" class="filter-range-delimiter col-sm-1 control-label">-</label>
+		<div class="col-sm-4 form-inline">
+			<div class="input-group input-group-sm">
+				<input type="text" name="filter[date][to]" data-provide="datepicker" data-date-orientation="bottom" data-date-format="d. m. yyyy" data-date-today-highlight="true" data-date-autoclose="true" data-autosubmit class="form-control input-sm form-control-sm" data-autosubmit-change id="frm-studentScoreGrid-filter-filter-date-to">
+				<label class="input-group-addon input-group-append" for="frm-studentScoreGrid-filter-filter-date-to">
+					<span class="input-group-text">
+						<i class="fa fa-calendar"></i>
+					</span>
+				</label>
+			</div>
+		</div>
+	</div>
+							</div>
+							<div class="datagrid-row-outer-filters-group col-sm-6">
+								
+
+	<div class="row">
+		<label for="frm-studentScoreGrid-filter-filter-name" class="col-sm-3 control-label">Název zkoušení</label>
+		<div class="col-sm-9">
+			<input type="text" name="filter[name]" data-autosubmit class="form-control input-sm form-control-sm" id="frm-studentScoreGrid-filter-filter-name">
+		</div>
+	</div>
+							</div>
+							<div class="datagrid-row-outer-filters-group col-sm-6">
+								
+
+	<div class="row">
+		<label for="frm-studentScoreGrid-filter-filter-subjectName" class="col-sm-3 control-label">Předmět</label>
+		<div class="col-sm-9">
+			<input type="text" name="filter[subjectName]" data-autosubmit class="form-control input-sm form-control-sm" id="frm-studentScoreGrid-filter-filter-subjectName">
+		</div>
+	</div>
+							</div>
+						</div>
+					</div>
+			<table class="table table-hover table-condensed table-bordered" id="snippet-studentScoreGrid-table">
+				<thead>
+					<tr class="row-group-actions">
+						<th colspan="6" class="ublaboo-datagrid-th-form-inline">
+
+							<div class="datagrid-toolbar">
+
+								<span class="datagrid-exports" id="snippet-studentScoreGrid-exports">
+									<a class="btn btn-xs btn-default btn-secondary" title="Export do CSV" href="/?studentScoreGrid-id=1&amp;do=studentScoreGrid-export">Export do CSV</a>
+								</span>
+
+								<div class="datagrid-settings">
+									
+
+									<div class="btn-group">
+										<button type="button" class="btn btn-xs btn-default btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<i class="fa fa-gear"></i>
+										</button>
+										<ul class="dropdown-menu dropdown-menu-right dropdown-menu--grid">
+											<li>
+												
+													<a class="ajax dropdown-item" href="/?studentScoreGrid-column=date&amp;do=studentScoreGrid-hideColumn">
+														<i class="fa fa-check-square-o"></i>
+			Datum
+													</a>
+											</li>
+											<li>
+												
+													<a class="ajax dropdown-item" href="/?studentScoreGrid-column=name&amp;do=studentScoreGrid-hideColumn">
+														<i class="fa fa-check-square-o"></i>
+			Název zkoušení
+													</a>
+											</li>
+											<li>
+												
+													<a class="ajax dropdown-item" href="/?studentScoreGrid-column=subjectName&amp;do=studentScoreGrid-hideColumn">
+														<i class="fa fa-check-square-o"></i>
+			Předmět
+													</a>
+											</li>
+											<li>
+												
+													<a class="ajax dropdown-item" href="/?studentScoreGrid-column=percent&amp;do=studentScoreGrid-hideColumn">
+														<i class="fa fa-check-square-o"></i>
+			Procent
+													</a>
+											</li>
+											<li>
+												
+													<a class="ajax dropdown-item" href="/?studentScoreGrid-column=score&amp;do=studentScoreGrid-hideColumn">
+														<i class="fa fa-check-square-o"></i>
+			Bodů
+													</a>
+											</li>
+											<li>
+												
+													<a class="ajax dropdown-item" href="/?studentScoreGrid-column=description&amp;do=studentScoreGrid-hideColumn">
+														<i class="fa fa-check-square-o"></i>
+			Popis
+													</a>
+											</li>
+											<li role="separator" class="divider dropdown-divider"></li>
+											<li>
+												<a class="ajax dropdown-item" href="/?do=studentScoreGrid-showAllColumns"><i class="fa fa-eye"></i> Zobrazit všechny sloupce</a>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</th>
+					</tr>
+					<tr>
+							<th class="text-right col-date">
+
+			Datum
+
+								<div class="datagrid-column-header-additions">
+									<div class="btn-group column-settings-menu">
+										<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="">
+											<i class="fa fa-caret-down"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu--grid">
+											<li>
+												<a class="ajax dropdown-item" href="/?studentScoreGrid-column=date&amp;do=studentScoreGrid-hideColumn">
+													<i class="fa fa-eye-slash"></i> Skrýt sloupec</a>
+											</li>
+										</ul>
+									</div>
+
+										<a data-datagrid-reset-filter-by-column="date" title="Resetovat filtr" href="/?studentScoreGrid-key=date&amp;do=studentScoreGrid-resetColumnFilter" class="hidden ajax">
+											<i class="fa fa-remove"></i>
+										</a>
+								</div>
+							</th>
+							<th class="text-left col-name">
+
+			Název zkoušení
+
+								<div class="datagrid-column-header-additions">
+									<div class="btn-group column-settings-menu">
+										<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="">
+											<i class="fa fa-caret-down"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu--grid">
+											<li>
+												<a class="ajax dropdown-item" href="/?studentScoreGrid-column=name&amp;do=studentScoreGrid-hideColumn">
+													<i class="fa fa-eye-slash"></i> Skrýt sloupec</a>
+											</li>
+										</ul>
+									</div>
+
+										<a data-datagrid-reset-filter-by-column="name" title="Resetovat filtr" href="/?studentScoreGrid-key=name&amp;do=studentScoreGrid-resetColumnFilter" class="hidden ajax">
+											<i class="fa fa-remove"></i>
+										</a>
+								</div>
+							</th>
+							<th class="text-left col-subjectName">
+
+			Předmět
+
+								<div class="datagrid-column-header-additions">
+									<div class="btn-group column-settings-menu">
+										<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="">
+											<i class="fa fa-caret-down"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu--grid">
+											<li>
+												<a class="ajax dropdown-item" href="/?studentScoreGrid-column=subjectName&amp;do=studentScoreGrid-hideColumn">
+													<i class="fa fa-eye-slash"></i> Skrýt sloupec</a>
+											</li>
+										</ul>
+									</div>
+
+										<a data-datagrid-reset-filter-by-column="subjectName" title="Resetovat filtr" href="/?studentScoreGrid-key=subjectName&amp;do=studentScoreGrid-resetColumnFilter" class="hidden ajax">
+											<i class="fa fa-remove"></i>
+										</a>
+								</div>
+							</th>
+							<th class="text-right col-percent">
+
+			Procent
+
+								<div class="datagrid-column-header-additions">
+									<div class="btn-group column-settings-menu">
+										<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="">
+											<i class="fa fa-caret-down"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu--grid">
+											<li>
+												<a class="ajax dropdown-item" href="/?studentScoreGrid-column=percent&amp;do=studentScoreGrid-hideColumn">
+													<i class="fa fa-eye-slash"></i> Skrýt sloupec</a>
+											</li>
+										</ul>
+									</div>
+
+										<a data-datagrid-reset-filter-by-column="percent" title="Resetovat filtr" href="/?studentScoreGrid-key=percent&amp;do=studentScoreGrid-resetColumnFilter" class="hidden ajax">
+											<i class="fa fa-remove"></i>
+										</a>
+								</div>
+							</th>
+							<th class="text-right col-score">
+
+			Bodů
+
+								<div class="datagrid-column-header-additions">
+									<div class="btn-group column-settings-menu">
+										<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="">
+											<i class="fa fa-caret-down"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu--grid">
+											<li>
+												<a class="ajax dropdown-item" href="/?studentScoreGrid-column=score&amp;do=studentScoreGrid-hideColumn">
+													<i class="fa fa-eye-slash"></i> Skrýt sloupec</a>
+											</li>
+										</ul>
+									</div>
+
+										<a data-datagrid-reset-filter-by-column="score" title="Resetovat filtr" href="/?studentScoreGrid-key=score&amp;do=studentScoreGrid-resetColumnFilter" class="hidden ajax">
+											<i class="fa fa-remove"></i>
+										</a>
+								</div>
+							</th>
+							<th class="text-left col-description">
+
+			Popis
+
+								<div class="datagrid-column-header-additions">
+									<div class="btn-group column-settings-menu">
+										<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="">
+											<i class="fa fa-caret-down"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu--grid">
+											<li>
+												<a class="ajax dropdown-item" href="/?studentScoreGrid-column=description&amp;do=studentScoreGrid-hideColumn">
+													<i class="fa fa-eye-slash"></i> Skrýt sloupec</a>
+											</li>
+										</ul>
+									</div>
+
+										<a data-datagrid-reset-filter-by-column="description" title="Resetovat filtr" href="/?studentScoreGrid-key=description&amp;do=studentScoreGrid-resetColumnFilter" class="hidden ajax">
+											<i class="fa fa-remove"></i>
+										</a>
+								</div>
+							</th>
+					</tr>
+				</thead>
+
+				<tbody  id="snippet-studentScoreGrid-tbody">
+					
+
+
+									<tr data-id="1083786" id="snippet-studentScoreGrid-item-1083786">
+
+											<td class="text-right col-date">
+
+				1. 4. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Názvosloví organických sloučenin a triviální názvy - test
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Chemie
+											</td>
+
+											<td class="text-right col-percent">
+
+				90,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">9 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1083805" id="snippet-studentScoreGrid-item-1083805">
+
+											<td class="text-right col-date">
+
+				1. 4. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Triviální názvy - domácí procvičování (521, 522)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Chemie
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">3 / 2</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1083526" id="snippet-studentScoreGrid-item-1083526">
+
+											<td class="text-right col-date">
+
+				1. 4. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Phrasal verbs B2
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				91,67%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">11 / 12</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1080706" id="snippet-studentScoreGrid-item-1080706">
+
+											<td class="text-right col-date">
+
+				30. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Informal letter
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				90,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">18 / 20</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1081389" id="snippet-studentScoreGrid-item-1081389">
+
+											<td class="text-right col-date">
+
+				30. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Přechodníky
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Český jazyk a literatura
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">1 / 1</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1082208" id="snippet-studentScoreGrid-item-1082208">
+
+											<td class="text-right col-date">
+
+				26. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Karboxylové kyseliny a jejich deriváty - test
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Chemie
+											</td>
+
+											<td class="text-right col-percent">
+
+				48,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">5 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1082648" id="snippet-studentScoreGrid-item-1082648">
+
+											<td class="text-right col-date">
+
+				26. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Členitost Ameriky
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Zeměpis
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">6 / 6</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1082147" id="snippet-studentScoreGrid-item-1082147">
+
+											<td class="text-right col-date">
+
+				22. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Strukturovaný životopis
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Český jazyk a literatura
+											</td>
+
+											<td class="text-right col-percent">
+
+				80,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">4 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1080074" id="snippet-studentScoreGrid-item-1080074">
+
+											<td class="text-right col-date">
+
+				20. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Literární kvíz (práce v týmu)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Český jazyk a literatura
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">7 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1079695" id="snippet-studentScoreGrid-item-1079695">
+
+											<td class="text-right col-date">
+
+				20. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Rozhovory
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Ruský jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1079700" id="snippet-studentScoreGrid-item-1079700">
+
+											<td class="text-right col-date">
+
+				20. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Diktát
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Ruský jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				50,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">2,5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1078460" id="snippet-studentScoreGrid-item-1078460">
+
+											<td class="text-right col-date">
+
+				19. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Karbonylové sloučeniny - malý test
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Chemie
+											</td>
+
+											<td class="text-right col-percent">
+
+				70,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">3,5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1080812" id="snippet-studentScoreGrid-item-1080812">
+
+											<td class="text-right col-date">
+
+				19. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Listening B2
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">20 / 20</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1078881" id="snippet-studentScoreGrid-item-1078881">
+
+											<td class="text-right col-date">
+
+				19. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Tvořivá klávesnice-Postery
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Informatika a výpočet.technika
+											</td>
+
+											<td class="text-right col-percent">
+
+				65,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">6,5 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1078900" id="snippet-studentScoreGrid-item-1078900">
+
+											<td class="text-right col-date">
+
+				19. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Aktivita v hodině- programovací jazyk KAREL
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Informatika a výpočet.technika
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1078919" id="snippet-studentScoreGrid-item-1078919">
+
+											<td class="text-right col-date">
+
+				19. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Pseudokód
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Informatika a výpočet.technika
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">2 / 2</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1077726" id="snippet-studentScoreGrid-item-1077726">
+
+											<td class="text-right col-date">
+
+				19. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Hörverstehen L14
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Německý jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">1 / 1</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1077063" id="snippet-studentScoreGrid-item-1077063">
+
+											<td class="text-right col-date">
+
+				18. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				kvíz
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Biologie
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">12 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1076206" id="snippet-studentScoreGrid-item-1076206">
+
+											<td class="text-right col-date">
+
+				17. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Práce v hodině: přechodníky a literární kvíz
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Český jazyk a literatura
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">1 / 1</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1076739" id="snippet-studentScoreGrid-item-1076739">
+
+											<td class="text-right col-date">
+
+				17. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Výboje v plynech
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Fyzika
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">10 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1076965" id="snippet-studentScoreGrid-item-1076965">
+
+											<td class="text-right col-date">
+
+				17. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				3.ČP
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Matematika
+											</td>
+
+											<td class="text-right col-percent">
+
+				96,67%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">29 / 30</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1077073" id="snippet-studentScoreGrid-item-1077073">
+
+											<td class="text-right col-date">
+
+				17. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Animals (Quizlet)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">3 / 3</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1075878" id="snippet-studentScoreGrid-item-1075878">
+
+											<td class="text-right col-date">
+
+				16. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Elektrický proud v plynech
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Fyzika
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">8 / 8</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1077984" id="snippet-studentScoreGrid-item-1077984">
+
+											<td class="text-right col-date">
+
+				13. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Práce s texty v čítance (J. Seifert)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Český jazyk a literatura
+											</td>
+
+											<td class="text-right col-percent">
+
+				80,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">4 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1075074" id="snippet-studentScoreGrid-item-1075074">
+
+											<td class="text-right col-date">
+
+				13. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Poslech. Rozhovory
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Ruský jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1076946" id="snippet-studentScoreGrid-item-1076946">
+
+											<td class="text-right col-date">
+
+				12. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Vokabeln L14
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Německý jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				90,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">4,5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1074448" id="snippet-studentScoreGrid-item-1074448">
+
+											<td class="text-right col-date">
+
+				12. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Ústní zkoušení, aktivity
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Chemie
+											</td>
+
+											<td class="text-right col-percent">
+
+				66,67%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">2 / 3</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1073530" id="snippet-studentScoreGrid-item-1073530">
+
+											<td class="text-right col-date">
+
+				11. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				3. čtvrtletní písemná práce
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				85,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">25,5 / 30</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1072368" id="snippet-studentScoreGrid-item-1072368">
+
+											<td class="text-right col-date">
+
+				10. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Third conditional - activity
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1077181" id="snippet-studentScoreGrid-item-1077181">
+
+											<td class="text-right col-date">
+
+				10. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				dýchací soustava
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Biologie
+											</td>
+
+											<td class="text-right col-percent">
+
+				77,14%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">27 / 35</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1071084" id="snippet-studentScoreGrid-item-1071084">
+
+											<td class="text-right col-date">
+
+				8. 3. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Polovodiče
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Fyzika
+											</td>
+
+											<td class="text-right col-percent">
+
+				96,15%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">12,5 / 13</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1070038" id="snippet-studentScoreGrid-item-1070038">
+
+											<td class="text-right col-date">
+
+				27. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Kde, kam, odkud?
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Ruský jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">5 / 5</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1070304" id="snippet-studentScoreGrid-item-1070304">
+
+											<td class="text-right col-date">
+
+				27. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				4. kontrolní diktát
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Český jazyk a literatura
+											</td>
+
+											<td class="text-right col-percent">
+
+				80,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">8 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1070452" id="snippet-studentScoreGrid-item-1070452">
+
+											<td class="text-right col-date">
+
+				27. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Stát
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Občanská výchova
+											</td>
+
+											<td class="text-right col-percent">
+
+				88,24%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">15 / 17</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1070701" id="snippet-studentScoreGrid-item-1070701">
+
+											<td class="text-right col-date">
+
+				26. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Antarktida
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Zeměpis
+											</td>
+
+											<td class="text-right col-percent">
+
+				95,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">9,5 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1078832" id="snippet-studentScoreGrid-item-1078832">
+
+											<td class="text-right col-date">
+
+				26. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Compute IT
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Informatika a výpočet.technika
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">3 / 3</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1069919" id="snippet-studentScoreGrid-item-1069919">
+
+											<td class="text-right col-date">
+
+				26. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Začátek 2. světové války (1939-1940)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Dějepis
+											</td>
+
+											<td class="text-right col-percent">
+
+				80,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">8 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1069208" id="snippet-studentScoreGrid-item-1069208">
+
+											<td class="text-right col-date">
+
+				25. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				2. světová válka
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Dějepis
+											</td>
+
+											<td class="text-right col-percent">
+
+				90,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">9 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1069411" id="snippet-studentScoreGrid-item-1069411">
+
+											<td class="text-right col-date">
+
+				25. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Key word transformations B2
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				91,67%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">11 / 12</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1069509" id="snippet-studentScoreGrid-item-1069509">
+
+											<td class="text-right col-date">
+
+				25. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Hydroxyderiváty - test
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Chemie
+											</td>
+
+											<td class="text-right col-percent">
+
+				85,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">8,5 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1070682" id="snippet-studentScoreGrid-item-1070682">
+
+											<td class="text-right col-date">
+
+				24. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				mízní soustava
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Biologie
+											</td>
+
+											<td class="text-right col-percent">
+
+				85,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">17 / 20</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1067875" id="snippet-studentScoreGrid-item-1067875">
+
+											<td class="text-right col-date">
+
+				23. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Komiks
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Estetická výchova-výtvarná
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">10 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1068254" id="snippet-studentScoreGrid-item-1068254">
+
+											<td class="text-right col-date">
+
+				23. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Vocabulary - Health and illnesses
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				85,71%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">12 / 14</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1070054" id="snippet-studentScoreGrid-item-1070054">
+
+											<td class="text-right col-date">
+
+				20. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Nácvik psaní. Přepis
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Ruský jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">4 / 4</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1067262" id="snippet-studentScoreGrid-item-1067262">
+
+											<td class="text-right col-date">
+
+				19. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Kleidung: Sätze und Vokabeln (suplovaná hodina 19. 2.)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Německý jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				90,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">9 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1067635" id="snippet-studentScoreGrid-item-1067635">
+
+											<td class="text-right col-date">
+
+				18. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				3. Kontrollarbeit: L13 + Leseverstehen
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Německý jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				80,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">16 / 20</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1065813" id="snippet-studentScoreGrid-item-1065813">
+
+											<td class="text-right col-date">
+
+				17. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Antarktida mapa
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Zeměpis
+											</td>
+
+											<td class="text-right col-percent">
+
+				60,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">6 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1065831" id="snippet-studentScoreGrid-item-1065831">
+
+											<td class="text-right col-date">
+
+				17. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Listening B2 (Health and illnesses)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">14 / 14</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+									<tr data-id="1066673" id="snippet-studentScoreGrid-item-1066673">
+
+											<td class="text-right col-date">
+
+				17. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Práce na suplovanou hodinu 17. 2.
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Německý jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				85,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">8,5 / 10</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				hodnocení po doplnění práce v AB upraveno
+											</td>
+									</tr>
+
+
+									<tr data-id="1065449" id="snippet-studentScoreGrid-item-1065449">
+
+											<td class="text-right col-date">
+
+				16. 2. 2026
+											</td>
+
+											<td class="text-left col-name">
+
+				Vocabulary race (Illnesses and injuries)
+											</td>
+
+											<td class="text-left col-subjectName">
+
+				Anglický jazyk
+											</td>
+
+											<td class="text-right col-percent">
+
+				100,00%
+											</td>
+
+											<td class="text-right col-score">
+
+				<span class="text-nowrap">3 / 3</span>
+											</td>
+
+											<td class="text-left col-description">
+
+				
+											</td>
+									</tr>
+
+
+
+
+				</tbody>
+    <tfoot id="snippet-studentScoreGrid-pagination">
+    
+        <tr>
+            <td colspan="6" class="row-grid-bottom">
+                <div class="col-items">
+                    <small class="text-muted">
+                        (
+
+                        Položky: 1 - 50
+                        z 86
+                        )
+                    </small>
+                </div><div class="col-pagination text-center">
+<div>
+    
+    <a class="first btn _btn _btn-sm btn_default disabled">
+            <i class="fa fa-arrow-left"></i> Předchozí</a>
+                <a class="first btn _btn btn_default btn-number active">1</a>
+            
+                <a class="btn _btn btn_default btn-number ajax" href="/?studentScoreGrid-page=2&amp;do=studentScoreGrid-page">2</a>
+            
+            <a class="btn _btn _btn-sm btn_default ajax" href="/?studentScoreGrid-page=2&amp;do=studentScoreGrid-page" rel="next">Další
+                <i class="fa fa-arrow-right"></i></a>
+</div>
+                </div><div class="col-per-page text-right">
+                        <select name="per_page" id="frm-studentScoreGrid-filter-per_page" data-autosubmit-per-page class="form-control input-sm form-control-sm"><option value="50" selected>50</option><option value="100">100</option><option value="150">150</option><option value="200">200</option><option value="250">250</option></select>
+                        <input type="submit" name="per_page_submit" value="ublaboo_datagrid.per_page_submit" formnovalidate data-nette-validation-scope='["per_page"]' class="datagrid-per-page-submit">
+                </div>
+            </td>
+        </tr>
+    </tfoot>
+			</table>
+		<input type="hidden" name="_do" value="studentScoreGrid-filter-submit"></form>
+
+	</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+    </div>
+</div>		<div class="tf-wrapper text-center">
+			<b>Systém známkování dle procent: 100-91% - 1,</b>
+			90-80% - 2,
+			79-60% - 3,
+			59-45% - 4,
+			44-0% - 5
+		</div>
+
+	</div>
+	<div class="footer-info">
+		<div class="sgs text-center">
+			<div class="sgs-wrapper">
+				<a href="https://softgate.systems" target="_blank" class="sgs-a">
+					<img src="/images/sgs.png" class="sgs-logo" alt="SoftGate Systems">
+					<span class="sgs-text">
+						<strong>softgate.</strong>systems
+					</span>
+				</a>
+			</div>
+		</div>
+		<div class="version-number">
+			v.395 (09.06.2021)
+		</div>
+	</div>
+	<!-- /.container-fluid-->
+	<!-- /.content-wrapper-->
+	<a class="scroll-to-top rounded" href="#page-top">
+		<i class="fa fa-angle-up"></i>
+	</a>
+	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="logoutModalLabel">Opravdu se chcete odhlásit?</h5>
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button" data-dismiss="modal">Ne</button>
+					<a class="btn btn-primary" href="/?do=out">Ano</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/bower_components/popper.js/dist/umd/popper.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
+<script src="/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+<script src="/bower_components/nette.ajax.js/nette.ajax.js"></script>
+<script src="/bower_components/happy/dist/happy.js"></script>
+<script src="/bower_components/bootstrap-datepicker/dist/locales/bootstrap-datepicker.cs.min.js"></script>
+<script src="/bower_components/jquery-ui-sortable/jquery-ui-sortable.js"></script>
+<script src="/bower_components/ublaboo-datagrid/assets/dist/datagrid.js"></script>
+<script src="/bower_components/ublaboo-datagrid/assets/dist/datagrid-instant-url-refresh.js"></script>
+<script src="/bower_components/ublaboo-datagrid/assets/dist/datagrid-spinners.js"></script>
+<script src="/bower_components/trumbowyg/dist/trumbowyg.js"></script>
+<script src="/bower_components/trumbowyg/dist/langs/cs.min.js"></script>
+<script src="/bower_components/chart.js/dist/Chart.js"></script>
+
+<script src="/js/bootstrap-select.min.js"></script>
+
+<script src="/js/js.cookie.min.js"></script>
+<script src="/js/jquery.multi-select.js"></script>
+<script src="/js/quicksearch.js"></script>
+<script src="/js/jquery.nette.forms.js"></script>
+<script src="/js/jquery.easing.min.js"></script>
+
+<script src="/js/sb-admin.min.js"></script>
+<script src="/js/dependantSelectBox.js"></script>
+
+<script src="/bower_components/Sortable/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
+
+<script src="/js/app.js?v=395"></script>
+<script src="/js/keyboard.js?v=395"></script>
+</body>
+
+</html>
+

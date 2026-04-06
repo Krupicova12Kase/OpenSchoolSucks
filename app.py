@@ -1,16 +1,15 @@
 #Imports
-from urllib import response
-
+import traceback
 from flask import Flask, flash, request, redirect, url_for, render_template, jsonify
 from os.path import join,dirname,realpath
 from time import sleep
 import requests
 from bs4 import BeautifulSoup, diagnose
 import csv
-from io import StringIO
+from io import *
 import certifi
-import urllib3
 import re
+import pandas as pd
 
 app = Flask(__name__)
 REQUEST_NAMES = ["username","password"]
@@ -19,11 +18,28 @@ REQUEST_NAMES = ["username","password"]
 session = requests.Session()
 session.verify = certifi.where()
 
-# Delte unnecessary spaces, tabs and newlines from text
+# Deletes unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
     return re.sub(r'\s+', ' ', text.strip())
 
-def get_csv_subjects(text:str, fieldnames:list):
+# Saves provided string to CSV using pandas
+def save_to_csv(text:str) -> list:
+    df = pd.read_csv(StringIO(text), sep=';')
+    return df.values.tolist()
+
+def get_info(text:str) -> tuple:
+    response = session.get("https://is.psjg.cz/")
+    soup = BeautifulSoup(text, "html.parser")
+    for table in soup.find_all('table'): #Find all tables in the HTML file
+        if table.tr.th.text == "Předmět": #Search only for table with list of subjects
+            for tr in table.find_all('tr'): #Iterate through rows
+                sezam = []
+                for i,td in enumerate(tr.find_all('a')): #Iterate through columns
+                    sezam.append(delete_spaces(td.text))
+        
+
+# Gets subjects from HTML text
+def get_csv_subjects(text:str, fieldnames:list) -> tuple:
     csvfile = StringIO()
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames,delimiter=';')
 
@@ -60,6 +76,9 @@ def func():
             verify=certifi.where())
         print(response.status_code)
         
+        if "Neplatné přihlašovací jméno nebo heslo" in response.text:
+            return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo") 
+        
         # Get subjects from HTML response and write them to CSV file
         fieldnames = ['Předmět', 'Bodové hodnocení',"Známka","Výsledná známka"] #List of column names for CSV file
         subjects = get_csv_subjects(response.text, fieldnames)
@@ -75,6 +94,10 @@ def func():
         next(reader) #Skip header row
         for row in reader:
             subjects.append(row)
+        
+        get_info(response.text)
+        
+        # AJ results
         response2 = session.get("https://is.psjg.cz/student/student-exam-overview",
                         params={
                             "studentExamOverview-examGrid-id": "1",
@@ -84,19 +107,22 @@ def func():
                         },
                         verify=certifi.where())
         print(response2.status_code)
-        print(response2.text)
-        print(response2)
-                     
-        if "Neplatné přihlašovací jméno nebo heslo" in response.text:
-            return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo")        
-        else:
-            file = open("test.html","w",encoding="utf-8")
-            file.write(response2.text)
-            file.close()
-            return response2.text
+
+        #Save response to CSV
+        csvlist = save_to_csv(text=response2.text) 
+
+        return render_template("znamka.html", znamka=1, znamky=csvlist)
+    # Error handling
     except Exception as e:
         print(f"\n{e}\n")
-        return f"<h1>Máťa něco pokazil...</h1><br><h3>Chyba:</h3><br>{e}"
+        print(traceback.format_exc())
+        return f"""
+    <h1>Máťa něco pokazil...</h1>
+    <br>
+    <h3>Chyba:</h3><br>
+    <code>{e}</code>
+    <h3>Detaily (stack trace):</h3><br>
+    <code>{traceback.format_exc()}</code>"""
 
 if __name__ == "__main__":
     app.run(debug=True)
