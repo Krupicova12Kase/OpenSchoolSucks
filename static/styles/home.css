@@ -1,0 +1,14 @@
+.container {
+    width: fit-content;
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+}
+
+.container-child {
+    background-color: #f0f0f0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 100px;
+}

@@ -1,0 +1,22 @@
+body{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.container {
+    width: fit-content;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    flex-direction: column;
+    background-color: rgb(174, 235, 249);
+    border-radius: 15px;
+}
+
+.container-child {
+    padding: 15px;
+    min-width: 100px;
+    border-radius: 15px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    text-align: center;
+}

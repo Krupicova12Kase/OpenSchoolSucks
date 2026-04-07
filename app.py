@@ -10,6 +10,7 @@ from io import *
 import certifi
 import re
 import pandas as pd
+from urllib.parse import urlparse, parse_qs
 
 app = Flask(__name__)
 REQUEST_NAMES = ["username","password"]
@@ -28,16 +29,42 @@ def save_to_csv(text:str) -> list:
     return df.values.tolist()
 
 def get_info(text:str) -> tuple:
-    response = session.get("https://is.psjg.cz/")
+    sezam = []
+    # Get full HTML webpage (Kdo tohle sakra dělal, kdyby to bylo na mě, tak udělám API)
     soup = BeautifulSoup(text, "html.parser")
     for table in soup.find_all('table'): #Find all tables in the HTML file
         if table.tr.th.text == "Předmět": #Search only for table with list of subjects
             for tr in table.find_all('tr'): #Iterate through rows
-                sezam = []
-                for i,td in enumerate(tr.find_all('a')): #Iterate through columns
-                    sezam.append(delete_spaces(td.text))
-        
+                for a_tag in tr.find_all('a'): #Search through links
+                    url = a_tag.get("href") #Get URL from link
+                    query = urlparse(url).query
+                    params = parse_qs(query)
 
+                    subject_id = params.get('subjectId')[0]
+                    student_id = params.get('studentId')[0]
+                    
+                    sezam.append([student_id, subject_id])
+        break
+    
+    # Process subject Ids
+    subjectIds = []
+    for i in sezam:
+        subjectIds.append(i[1]) 
+         
+    # "Security" checks
+    # Check if list isn't empty      
+    if len(sezam) == 0:
+        return ("ERROR",1)
+    
+    # Check if there aren't multiple student IDs
+    studentIds = []
+    for i in sezam:
+        if not i[0] in studentIds:
+            studentIds.append(i[0])
+    if len(studentIds) > 1:
+        return ("ERROR",2)
+    
+    return ("OK", student_id, subjectIds)
 # Gets subjects from HTML text
 def get_csv_subjects(text:str, fieldnames:list) -> tuple:
     csvfile = StringIO()
@@ -61,6 +88,9 @@ def get_csv_subjects(text:str, fieldnames:list) -> tuple:
                 
 @app.route('/',methods=["GET","POST"])
 def func():
+    # -------------------------------
+    # LOGIN
+    # -------------------------------
     if request.method == "GET":
         return render_template("index.html")
     
@@ -78,7 +108,7 @@ def func():
         
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
             return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo") 
-        
+    
         # Get subjects from HTML response and write them to CSV file
         fieldnames = ['Předmět', 'Bodové hodnocení',"Známka","Výsledná známka"] #List of column names for CSV file
         subjects = get_csv_subjects(response.text, fieldnames)
@@ -95,13 +125,21 @@ def func():
         for row in reader:
             subjects.append(row)
         
-        get_info(response.text)
+        student_info = get_info(text = session.get("https://is.psjg.cz/").text)
+        if student_info[0] == "OK":
+            pass
+        elif student_info[0] == "ERROR":
+            return
         
+        # -------------------------------
+        # HOMEPAGE
+        # -------------------------------
+
         # AJ results
         response2 = session.get("https://is.psjg.cz/student/student-exam-overview",
                         params={
                             "studentExamOverview-examGrid-id": "1",
-                            "studentId": "3881",
+                            "studentId": student_info[1],
                             "subjectId": "1619",
                             "do": "studentExamOverview-examGrid-export"
                         },
@@ -112,7 +150,7 @@ def func():
         csvlist = save_to_csv(text=response2.text) 
 
         return render_template("znamka.html", znamka=1, znamky=csvlist)
-    # Error handling
+        # Error handling
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
@@ -123,6 +161,5 @@ def func():
     <code>{e}</code>
     <h3>Detaily (stack trace):</h3><br>
     <code>{traceback.format_exc()}</code>"""
-
 if __name__ == "__main__":
     app.run(debug=True)
