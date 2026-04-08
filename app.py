@@ -28,8 +28,10 @@ def save_to_csv(text:str) -> list:
     df = pd.read_csv(StringIO(text), sep=';')
     return df.values.tolist()
 
+# Get info about student from HTML
 def get_info(text:str) -> tuple:
     sezam = []
+    subject_mappings = {}
     # Get full HTML webpage (Kdo tohle sakra dělal, kdyby to bylo na mě, tak udělám API)
     soup = BeautifulSoup(text, "html.parser")
     for table in soup.find_all('table'): #Find all tables in the HTML file
@@ -43,6 +45,7 @@ def get_info(text:str) -> tuple:
                     subject_id = params.get('subjectId')[0]
                     student_id = params.get('studentId')[0]
                     
+                    subject_mappings.update({subject_id: a_tag.get_text()})
                     sezam.append([student_id, subject_id])
         break
     
@@ -64,7 +67,7 @@ def get_info(text:str) -> tuple:
     if len(studentIds) > 1:
         return ("ERROR",2)
     
-    return ("OK", student_id, subjectIds)
+    return ("OK", student_id, subjectIds, subject_mappings)
 # Gets subjects from HTML text
 def get_csv_subjects(text:str, fieldnames:list) -> tuple:
     csvfile = StringIO()
@@ -147,19 +150,38 @@ def func():
         print(response2.status_code)
 
         #Save response to CSV
-        csvlist = save_to_csv(text=response2.text) 
+        #csvlist = save_to_csv(text=response2.text) 
 
-        return render_template("znamka.html", znamka=1, znamky=csvlist)
+        return render_template("home.html", subjects=student_info[3])
         # Error handling
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
         return f"""
-    <h1>Máťa něco pokazil...</h1>
-    <br>
-    <h3>Chyba:</h3><br>
-    <code>{e}</code>
-    <h3>Detaily (stack trace):</h3><br>
-    <code>{traceback.format_exc()}</code>"""
+        <h1>Máťa něco pokazil...</h1>
+        <br>
+        <h3>Chyba:</h3><br>
+        <code>{e}</code>
+        <h3>Detaily (stack trace):</h3><br>
+        <code>{traceback.format_exc()}</code>"""
+        
+#znamky
+@app.route('/predmet/<subject_id>')
+def predmet(subject_id):
+    student_info = get_info(text = session.get("https://is.psjg.cz/").text)
+    if student_info[0] == "OK":
+        pass
+    elif student_info[0] == "ERROR":
+        return
+    response = session.get("https://is.psjg.cz/student/student-exam-overview",
+                        params={
+                            "studentExamOverview-examGrid-id": "1",
+                            "studentId": student_info[1],
+                            "subjectId": subject_id,
+                            "do": "studentExamOverview-examGrid-export"
+                        },
+                        verify=certifi.where())
+    return render_template("znamka.html", znamky = response.text)
+
 if __name__ == "__main__":
     app.run(debug=True)
