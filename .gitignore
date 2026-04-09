@@ -1,1 +1,6 @@
 .venv
+.vscode/launch.json
+names.csv
+test.csv
+js/keyboard.js
+znamky.csv
