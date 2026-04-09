@@ -106,7 +106,8 @@ def func():
             "name": username,
             "password": password,
             "signIn": "Přihlásit se",
-            "_do": "signInForm-submit"})
+            "_do": "signInForm-submit"},
+            verify=False)
         print(response.status_code)
         
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
@@ -145,7 +146,8 @@ def func():
                             "studentId": student_info[1],
                             "subjectId": "1619",
                             "do": "studentExamOverview-examGrid-export"
-                        })
+                        },
+                        verify=False)
         print(response2.status_code)
 
         return render_template("home.html", subjects=student_info[3])
@@ -176,7 +178,8 @@ def subject(subject_id):
                             "studentId": student_info[1],
                             "subjectId": subject_id,
                             "do": "studentExamOverview-examGrid-export"
-                        })
+                        },
+                        verify=False)
     
     #Save response to CSV
     csvlist = save_to_csv(text=response.text) 
