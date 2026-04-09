@@ -13,7 +13,7 @@
     <div class="container">
         {% for id,name in subjects.items() %}
         <div class="container-child">
-            <a href="{{ url_for('predmet', subject_id=id) }}">{{ name }}</a>
+            <a href="{{ url_for('subject', subject_id=id) }}">{{ name }}</a>
         </div>
         {% endfor %}
     </div>
