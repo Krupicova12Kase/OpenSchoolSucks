@@ -149,9 +149,6 @@ def func():
                         verify=certifi.where())
         print(response2.status_code)
 
-        #Save response to CSV
-        #csvlist = save_to_csv(text=response2.text) 
-
         return render_template("home.html", subjects=student_info[3])
         # Error handling
     except Exception as e:
@@ -166,13 +163,14 @@ def func():
         <code>{traceback.format_exc()}</code>"""
         
 #znamky
-@app.route('/predmet/<subject_id>')
-def predmet(subject_id):
+@app.route('/subject/<subject_id>')
+def subject(subject_id):
     student_info = get_info(text = session.get("https://is.psjg.cz/").text)
     if student_info[0] == "OK":
         pass
     elif student_info[0] == "ERROR":
         return
+    
     response = session.get("https://is.psjg.cz/student/student-exam-overview",
                         params={
                             "studentExamOverview-examGrid-id": "1",
@@ -181,7 +179,11 @@ def predmet(subject_id):
                             "do": "studentExamOverview-examGrid-export"
                         },
                         verify=certifi.where())
-    return render_template("znamka.html", znamky = response.text)
+    
+    #Save response to CSV
+    csvlist = save_to_csv(text=response.text) 
+    
+    return render_template("znamka.html", znamky = csvlist, znamka = 67)
 
 if __name__ == "__main__":
     app.run(debug=True)
