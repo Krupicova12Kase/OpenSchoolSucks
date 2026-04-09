@@ -129,7 +129,7 @@ def func():
         for row in reader:
             subjects.append(row)
         
-        student_info = get_info(text = session.get("https://is.psjg.cz/").text)
+        student_info = get_info(text = session.get("https://is.psjg.cz/", verify=False).text)
         if student_info[0] == "OK":
             pass
         elif student_info[0] == "ERROR":
@@ -166,7 +166,7 @@ def func():
 #znamky
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
-    student_info = get_info(text = session.get("https://is.psjg.cz/").text)
+    student_info = get_info(text = session.get("https://is.psjg.cz/", verify=False).text)
     if student_info[0] == "OK":
         pass
     elif student_info[0] == "ERROR":
