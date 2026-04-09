@@ -11,13 +11,14 @@ import certifi
 import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
+import truststore
 
 app = Flask(__name__)
 REQUEST_NAMES = ["username","password"]
 
 #Requests session
+ssl_context = truststore.SSLContext()
 session = requests.Session()
-session.verify = certifi.where()
 
 # Deletes unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
@@ -105,8 +106,7 @@ def func():
             "name": username,
             "password": password,
             "signIn": "Přihlásit se",
-            "_do": "signInForm-submit"},
-            verify=certifi.where())
+            "_do": "signInForm-submit"})
         print(response.status_code)
         
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
@@ -145,8 +145,7 @@ def func():
                             "studentId": student_info[1],
                             "subjectId": "1619",
                             "do": "studentExamOverview-examGrid-export"
-                        },
-                        verify=certifi.where())
+                        })
         print(response2.status_code)
 
         return render_template("home.html", subjects=student_info[3])
@@ -177,8 +176,7 @@ def subject(subject_id):
                             "studentId": student_info[1],
                             "subjectId": subject_id,
                             "do": "studentExamOverview-examGrid-export"
-                        },
-                        verify=certifi.where())
+                        })
     
     #Save response to CSV
     csvlist = save_to_csv(text=response.text) 
