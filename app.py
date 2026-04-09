@@ -1,6 +1,6 @@
 #Imports
 import traceback
-from flask import Flask, flash, request, redirect, url_for, render_template, jsonify
+from flask import Flask, flash, request, redirect, url_for, render_template, jsonify, session as flask_session
 import os
 from time import sleep
 import requests
@@ -13,12 +13,11 @@ import pandas as pd
 from urllib.parse import urlparse, parse_qs
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 REQUEST_NAMES = ["username","password"]
 
 #Requests session
 certificate = os.path.join(os.path.dirname(__file__), 'psjg_chain.crt')
-session = requests.Session()
-session.verify = certificate  # Use certifi's CA bundle
 
 # Deletes unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
@@ -48,7 +47,7 @@ def get_info(text:str) -> tuple:
                     
                     subject_mappings.update({subject_id: a_tag.get_text()})
                     sezam.append([student_id, subject_id])
-        break
+            break
     
     # Process subject Ids
     subjectIds = []
@@ -92,6 +91,8 @@ def get_csv_subjects(text:str, fieldnames:list) -> tuple:
                 
 @app.route('/',methods=["GET","POST"])
 def func():
+    session = requests.Session()
+    session.verify = certificate
     # -------------------------------
     # LOGIN
     # -------------------------------
@@ -108,6 +109,8 @@ def func():
             "signIn": "Přihlásit se",
             "_do": "signInForm-submit"})
         print(response.status_code)
+        
+        flask_session["cookies"] = session.cookies.get_dict()
         
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
             return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo") 
@@ -139,6 +142,7 @@ def func():
         # -------------------------------
 
         # AJ results
+        flask_session["studentId"] = student_info[1]
         response2 = session.get("https://is.psjg.cz/student/student-exam-overview",
                         params={
                             "studentExamOverview-examGrid-id": "1",
@@ -164,21 +168,25 @@ def func():
 #znamky
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
-    student_info = get_info(text = session.get("https://is.psjg.cz/").text)
-    if student_info[0] == "OK":
-        pass
-    elif student_info[0] == "ERROR":
-        return
+    saved_cookies = flask_session.get('cookies')
+    student_id = flask_session.get('studentId')
+    
+    if not saved_cookies:
+        return redirect(url_for('func'))
+    session = requests.Session()
+    session.verify = certificate
+    session.cookies.update(saved_cookies)
     
     response = session.get("https://is.psjg.cz/student/student-exam-overview",
                         params={
                             "studentExamOverview-examGrid-id": "1",
-                            "studentId": student_info[1],
+                            "studentId": student_id,
                             "subjectId": subject_id,
                             "do": "studentExamOverview-examGrid-export"
                         })
     
     #Save response to CSV
+    print(response.status_code)
     csvlist = save_to_csv(text=response.text) 
     
     return render_template("znamka.html", znamky = csvlist, znamka = 67)
