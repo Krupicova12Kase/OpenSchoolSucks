@@ -16,10 +16,26 @@ app = Flask(__name__)
 REQUEST_NAMES = ["username","password"]
 
 #Requests session
-basedir = os.path.abspath(os.path.dirname(__file__))
-cert_path = os.path.join(basedir, 'psjg.crt')
+
+#díky, Gemini, přísáhám, že mě tyhle requesty jednou doženou k šílenství
+my_cert_path = os.path.join(os.path.dirname(__file__), 'psjg.crt')
+combined_cert_path = os.path.join(os.path.dirname(__file__), 'combined_bundle.pem')
+try:
+    with open(combined_cert_path, 'w') as outfile:
+        # Nejdřív zapíšeme všechny standardní certifikáty světa
+        with open(certifi.where(), 'r') as infile:
+            outfile.write(infile.read())
+        
+        # Pak přidáme ten tvůj školní
+        if os.path.exists(my_cert_path):
+            with open(my_cert_path, 'r') as infile:
+                outfile.write("\n") # Nový řádek pro jistotu
+                outfile.write(infile.read())
+    print("Created certificate bundle.")
+except Exception as e:
+    print(f"Failed to create combined certificate bundle: {e}")
 session = requests.Session()
-session.verify = cert_path
+session.verify = combined_cert_path
 
 # Deletes unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
