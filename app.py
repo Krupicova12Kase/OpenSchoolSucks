@@ -1,7 +1,7 @@
 #Imports
 import traceback
 from flask import Flask, flash, request, redirect, url_for, render_template, jsonify
-from os.path import join,dirname,realpath
+import os
 from time import sleep
 import requests
 from bs4 import BeautifulSoup, diagnose
@@ -11,14 +11,15 @@ import certifi
 import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
-import truststore
 
 app = Flask(__name__)
 REQUEST_NAMES = ["username","password"]
 
 #Requests session
+basedir = os.path.abspath(os.path.dirname(__file__))
+cert_path = os.path.join(basedir, 'psjg.crt')
 session = requests.Session()
-session.verify = certifi.where()
+session.verify = cert_path
 
 # Deletes unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
