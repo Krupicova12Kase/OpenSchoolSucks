@@ -88,6 +88,20 @@ def get_csv_subjects(text:str, fieldnames:list) -> tuple:
         return ("OK",csvfile)
     except Exception as e:
         return ("ERROR",diagnose(soup),e)                
+
+def znamka_from_percentage(percentage:float) -> int:
+    if percentage >= 91:
+        return 1
+    elif percentage >= 80:
+        return 2
+    elif percentage >= 60:
+        return 3
+    elif percentage >= 45:
+        return 4
+    elif percentage >= 0:
+        return 5
+    else:
+        return 0
                 
 @app.route('/',methods=["GET","POST"])
 def func():
@@ -141,7 +155,7 @@ def func():
         # HOMEPAGE
         # -------------------------------
 
-        # AJ results
+        # Results ig
         flask_session["studentId"] = student_info[1]
         response2 = session.get("https://is.psjg.cz/student/student-exam-overview",
                         params={
@@ -187,7 +201,10 @@ def subject(subject_id):
     
     #Save response to CSV
     print(response.status_code)
-    csvlist = save_to_csv(text=response.text) 
+    csvlist = save_to_csv(text=response.text)
+    
+    #df = pd.read_csv(csvlist, sep=';')
+    #df["Znamka"]
     
     return render_template("znamka.html", znamky = csvlist, znamka = 67)
 

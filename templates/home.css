@@ -1,5 +1,40 @@
-body{
+a:link, a:visited, a:active {
+    color: #1f2a40;
+    text-decoration: none;
+}
+a:hover{
+    font-weight: bold;
+}
+
+body {
+    background-color: #EEF2FA;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-color: lightblue;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.grid1 {
+    grid-area: 1 / 1 / 2 / 3;
+    text-align: center;
+}
+
+.grid2 {
+    grid-area: 2 / 1 / 3 / 2;
+    text-align: left;
+}
+
+.grid3 {
+    grid-area: 2 / 2 / 3 / 3;
+    text-align: right;
 }
 
 .container {
@@ -8,8 +43,9 @@ body{
     gap: 10px;
     padding: 10px;
     flex-direction: column;
-    background-color: rgb(174, 235, 249);
+    background-color: #FFFFFF;
     border-radius: 15px;
+
 }
 
 .container-child {
