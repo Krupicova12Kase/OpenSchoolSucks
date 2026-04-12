@@ -166,7 +166,8 @@ def func():
                         })
         print(response2.status_code)
 
-        return render_template("home.html", subjects=student_info[3])
+        flask_session["subjects"] = student_info[3]
+        return redirect(url_for("home"))
         # Error handling
     except Exception as e:
         print(f"\n{e}\n")
@@ -206,7 +207,34 @@ def subject(subject_id):
     #df = pd.read_csv(csvlist, sep=';')
     #df["Znamka"]
     
-    return render_template("znamka.html", znamky = csvlist, znamka = 67)
+    flask_session["znamky"] = csvlist
+    flask_session["znamka"] = 67
+    return redirect(url_for("znamka"))
+    
+@app.route('/home') 
+def home():
+    # Get subjects from saved cookies
+    subjects = flask_session.get('subjects')
+    
+    #Make sure it exists
+    if not subjects:
+        return redirect(url_for('func'))
+        
+    # Render the template
+    return render_template("home.html", subjects=subjects)
+
+@app.route('/znamka') 
+def znamka():
+    # Get subjects from saved cookies
+       
+    csvlist = flask_session.get("znamky")
+    znamka = flask_session.get("znamka")
+    #Make sure it exists
+    if not csvlist or not znamka:
+        return redirect(url_for('func'))
+        
+    # Render the template
+    return render_template("znamka.html", znamky = csvlist, znamka = znamka)
 
 if __name__ == "__main__":
     app.run(debug=True)
