@@ -1,16 +1,21 @@
+###############################
+# Made by Krupicova12Kase AKA Máťa
+# Licensed under MIT license
+# Report any bugs at https://github.com/Krupicova12Kase/OpenSchoolSucks/issues
+###############################
+
 #Imports
 import traceback
 from flask import Flask, flash, request, redirect, url_for, render_template, jsonify, session as flask_session
 import os
-from time import sleep
 import requests
 from bs4 import BeautifulSoup, diagnose
 import csv
 from io import *
-import certifi
 import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
+import math
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -24,9 +29,9 @@ def delete_spaces(text:str) -> str:
     return re.sub(r'\s+', ' ', text.strip())
 
 # Saves provided string to CSV using pandas
-def save_to_csv(text:str) -> list:
+def csv_to_dataframe(text:str) -> pd.DataFrame:
     df = pd.read_csv(StringIO(text), sep=';')
-    return df.values.tolist()
+    return df
 
 # Get info about student from HTML
 def get_info(text:str) -> tuple:
@@ -68,6 +73,7 @@ def get_info(text:str) -> tuple:
         return ("ERROR",2)
     
     return ("OK", student_id, subjectIds, subject_mappings)
+
 # Gets subjects from HTML text
 def get_csv_subjects(text:str, fieldnames:list) -> tuple:
     csvfile = StringIO()
@@ -89,7 +95,13 @@ def get_csv_subjects(text:str, fieldnames:list) -> tuple:
     except Exception as e:
         return ("ERROR",diagnose(soup),e)                
 
-def znamka_from_percentage(percentage:float) -> int:
+def znamka_from_percentage(percentage) -> int:
+    if str(percentage) == "-":
+        return -1
+    if str(percentage)[len(percentage)-1] == "%":
+        percentage = percentage[:len(percentage)-1]
+        percentage = percentage.replace(",",".")
+        percentage = float(percentage)
     if percentage >= 91:
         return 1
     elif percentage >= 80:
@@ -200,17 +212,34 @@ def subject(subject_id):
                             "do": "studentExamOverview-examGrid-export"
                         })
     
-    #Save response to CSV
+    #Save response to CSV  
     print(response.status_code)
-    csvlist = save_to_csv(text=response.text)
+    df = csv_to_dataframe(text=response.text)         
     
-    #df = pd.read_csv(csvlist, sep=';')
-    #df["Znamka"]
+    znamky = []
+    csvlist = df.values.tolist()
     
+    # Add znamka to csvlist
+    for x,row in enumerate(csvlist):
+        znamky.append(znamka_from_percentage(row[5]))
+    df["Znamka"] = znamky 
+    csvlist = df.values.tolist()   
+    
+    #Get rid of nan values    
+    for x,row in enumerate(csvlist):
+        for y,item in enumerate(row):
+            if pd.isna(item):               
+                csvlist[x][y] = ""
+    
+    print(csvlist)
+
     flask_session["znamky"] = csvlist
-    flask_session["znamka"] = 67
-    return redirect(url_for("znamka"))
-    
+    return redirect(url_for("znamka"))   
+
+# -------------------------------
+# REDIRECTS
+# -------------------------------
+ 
 @app.route('/home') 
 def home():
     # Get subjects from saved cookies
@@ -226,7 +255,7 @@ def home():
 @app.route('/znamka') 
 def znamka():
     # Get subjects from saved cookies
-       
+    
     csvlist = flask_session.get("znamky")
     znamka = flask_session.get("znamka")
     #Make sure it exists
@@ -234,7 +263,7 @@ def znamka():
         return redirect(url_for('func'))
         
     # Render the template
-    return render_template("znamka.html", znamky = csvlist, znamka = znamka)
+    return render_template("znamka.html", znamky = csvlist, )
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

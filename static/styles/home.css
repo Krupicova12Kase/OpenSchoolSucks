@@ -80,6 +80,7 @@ body {
     text-align: center;
 }
 
+/* mobile */
 @media (max-width: 768px) {
     .grid-main {
         grid-template-columns: 1fr;
