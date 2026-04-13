@@ -160,7 +160,7 @@ def func():
         if student_info[0] == "OK":
             pass
         elif student_info[0] == "ERROR":
-            return
+            return "Error"
         
         # -------------------------------
         # HOMEPAGE
