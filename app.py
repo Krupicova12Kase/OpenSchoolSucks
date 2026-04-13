@@ -15,7 +15,6 @@ from io import *
 import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
-import math
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -234,7 +233,8 @@ def subject(subject_id):
     print(csvlist)
 
     flask_session["znamky"] = csvlist
-    return redirect(url_for("znamka"))   
+    return render_template("znamka.html", znamky = csvlist)
+    #return redirect(url_for("znamka"))   
 
 # -------------------------------
 # REDIRECTS
@@ -251,19 +251,6 @@ def home():
         
     # Render the template
     return render_template("home.html", subjects=subjects)
-
-@app.route('/znamka') 
-def znamka():
-    # Get subjects from saved cookies
-    
-    csvlist = flask_session.get("znamky")
-    znamka = flask_session.get("znamka")
-    #Make sure it exists
-    if not csvlist or not znamka:
-        return redirect(url_for('func'))
-        
-    # Render the template
-    return render_template("znamka.html", znamky = csvlist, )
 
 if __name__ == "__main__":
     app.run(debug=False)
