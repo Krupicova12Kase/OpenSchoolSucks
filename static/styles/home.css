@@ -50,17 +50,18 @@ body {
     padding: var(--padding);
     color: #ffffff;
 }
+
 .grid2-main{
     grid-area: 2 / 1 / 3 / 2;
     text-align: left;
     padding: var(--padding);
 }
+
 .grid3-main{
     grid-area: 2 / 2 / 3 / 3;
     text-align: right;
     padding: var(--padding);
 }
-
 
 .container {
     width: fit-content;
@@ -71,7 +72,6 @@ body {
     background-color: #FFFFFF;
     border-radius: var(--border-radius);
     flex-wrap: wrap;
-
 }
 
 .container-child {
