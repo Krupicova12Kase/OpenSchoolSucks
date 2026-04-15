@@ -229,8 +229,6 @@ def subject(subject_id):
         for y,item in enumerate(row):
             if pd.isna(item):               
                 csvlist[x][y] = ""
-    
-    print(csvlist)
 
     flask_session["znamky"] = csvlist
     return render_template("znamka.html", znamky = csvlist)
