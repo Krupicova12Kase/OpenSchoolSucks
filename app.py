@@ -134,7 +134,7 @@ def func():
             "signIn": "Přihlásit se",
             "_do": "signInForm-submit"})
         print(response.status_code)
-        
+        print(response.text)
         flask_session["cookies"] = session.cookies.get_dict()
         
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
@@ -179,6 +179,7 @@ def func():
 
         flask_session["subjects"] = student_info[3]
         return redirect(url_for("home"))
+    
         # Error handling
     except Exception as e:
         print(f"\n{e}\n")

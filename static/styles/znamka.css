@@ -1,14 +1,17 @@
-:root{
-    --border-radius: 15px;
-    --padding: 8px;
-    --borders: 1px solid #ffffff;
+:root {
+  --border-radius: 15px;
+  --padding: 8px;
+  --borders: 1px solid #ffffff;
 }
 
-a:link, a:visited, a:active {
+a:link,
+a:visited,
+a:active {
   color: #1f2a40;
   text-decoration: none;
 }
-a:hover{
+
+a:hover {
   color: #FE7743;
 }
 
@@ -30,7 +33,7 @@ body {
   align-items: stretch;
 }
 
-.container-child{
+.container-child {
   padding: var(--padding);
   border-radius: var(--border-radius);
   text-align: center;
@@ -49,7 +52,8 @@ body {
   text-align: center;
 }
 
-.grid1 { /*znamka*/
+.grid1 {
+  /*znamka*/
   grid-area: 1 / 3 / 2 / 4;
   font-weight: bold;
   box-sizing: border-box;
@@ -59,7 +63,8 @@ body {
   border-right: var(--borders)
 }
 
-.grid2 { /*datum*/
+.grid2 {
+  /*datum*/
   grid-area: 1 / 2 / 2 / 3;
   width: 100%;
   box-sizing: border-box;
@@ -68,24 +73,28 @@ body {
   margin-right: 5px;
 }
 
-.grid3 { /*název*/
+.grid3 {
+  /*název*/
   grid-area: 1 / 1 / 2 / 2;
   font-weight: bold;
 }
 
-.grid4 {  /*procenta*/
+.grid4 {
+  /*procenta*/
   grid-area: 1 / 4 / 2 / 5;
   border-right: var(--borders);
 }
 
-.grid5 { /*body*/
+.grid5 {
+  /*body*/
   grid-area: 1 / 5 / 2 / 6;
   border-right: var(--borders);
   padding-left: 10px;
   height: auto;
 }
 
-.grid6 { /*popis*/
+.grid6 {
+  /*popis*/
   grid-area: 1 / 6 / 2 / 7;
   padding-left: 10px;
   height: auto;
@@ -100,7 +109,7 @@ body {
   padding: 0;
 }
 
-.grid1-main { 
+.grid1-main {
   grid-area: 1 / 1 / 2 / 3;
   text-align: center;
   background-color: #1F2A40;
@@ -109,37 +118,44 @@ body {
   color: #ffffff;
 }
 
-.grid2-main { 
+.grid2-main {
   grid-area: 2 / 1 / 3 / 3;
   text-align: left;
   padding: var(--padding);
 }
-@media (max-width: 768px){
-  .grid{
+
+@media (max-width: 768px) {
+  .grid {
     grid-template-columns: 1fr 1fr 1fr auto auto auto;
     grid-template-rows: 1fr 1fr;
   }
-  .grid1{
+
+  .grid1 {
     grid-area: 1 / 1 / 3 / 2;
     font-size: xx-large;
     border-right: var(--borders);
   }
-  .grid2{
+
+  .grid2 {
     grid-area: 3 / 1 / 4 / 2;
     border-left: 0px;
   }
-  .grid3{
+
+  .grid3 {
     grid-area: 1 / 2 / 2 / 4;
     border-right: 0px;
   }
-  .grid4{
+
+  .grid4 {
     grid-area: 2 / 2 / 3 / 3;
   }
-  .grid5{
+
+  .grid5 {
     grid-area: 2 / 3 / 3 / 4;
     border-right: 0px
   }
-  .grid6{
+
+  .grid6 {
     grid-area: 3 / 2 / 4 / 4;
   }
 }

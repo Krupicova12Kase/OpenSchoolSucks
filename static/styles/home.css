@@ -1,14 +1,21 @@
-:root{
+:root {
     --border-radius: 15px;
     --padding: 8px;
+    --borders: 1px solid #ffffff;
 }
 
 a:link, a:visited, a:active {
     color: #1f2a40;
     text-decoration: none;
 }
-a:hover{
+
+a:hover {
     color: #FE7743;
+}
+
+.hr-display {
+    visibility: hidden;
+    display: none;
 }
 
 body {
@@ -19,8 +26,8 @@ body {
 
 .grid {
     display: grid;
-    grid-template-columns: 1fr, 1fr;
-    grid-template-rows: 1fr, auto;
+    grid-template-columns: 1fr auto auto;
+    grid-template-rows: auto auto;
     grid-column-gap: 10px;
     grid-row-gap: 5px;
     background-color: #e4e4e4;
@@ -38,11 +45,30 @@ body {
     padding: 0;
 }
 
-.grid1 {grid-area: 1 / 1 / 2 / 3; text-align: center;}
-.grid2 {grid-area: 2 / 1 / 3 / 2; text-align: left;}
-.grid3 {grid-area: 2 / 2 / 3 / 3; text-align: right;}
+.grid1 {
+    grid-area: 1 / 1 / 2 / 2;
+    text-align: center;
+    border-right: var(--borders);
+}
 
-.grid1-main{
+.grid2 {
+    grid-area: 1 / 2 / 2 / 3;
+    text-align: center;
+    border-right: var(--borders);
+}
+
+.grid3 {
+    grid-area: 1 / 3 / 2 / 4;
+    text-align: left;
+    border-right: var(--borders);
+}
+
+.grid4 {
+    grid-area: 1 / 4 / 2 / 5;
+    text-align: right;
+}
+
+.grid1-main {
     grid-area: 1 / 1 / 2 / 3;
     text-align: center;
     background-color: #1F2A40;
@@ -51,13 +77,13 @@ body {
     color: #ffffff;
 }
 
-.grid2-main{
+.grid2-main {
     grid-area: 2 / 1 / 3 / 2;
     text-align: left;
     padding: var(--padding);
 }
 
-.grid3-main{
+.grid3-main {
     grid-area: 2 / 2 / 3 / 3;
     text-align: right;
     padding: var(--padding);
@@ -82,23 +108,65 @@ body {
 
 /* mobile */
 @media (max-width: 768px) {
+    .hr-display {
+        visibility: visible;
+        display: block;
+    }
+
+    /* main grid */
     .grid-main {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto;
     }
+
     .grid1-main {
         grid-area: 1 / 1 / 2 / 2;
     }
+
     .grid2-main {
         grid-area: 2 / 1 / 3 / 2;
         display: flex;
         justify-content: center;
         align-items: center;
     }
+
     .grid3-main {
         grid-area: 3 / 1 / 4 / 2;
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    /*grid with grades*/
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto 1fr;
+        grid-column-gap: 10px;
+        grid-row-gap: 5px;
+        padding: 0;
+    }
+
+    .grid1 {
+        grid-area: 1 / 1 / 2 / 3;
+        text-align: center;
+    }
+
+    .grid2 {
+        grid-area: 1 / 3 / 3 / 4;
+        text-align: center;
+        align-self: center;
+        padding: 15px;
+        font-size: xx-large;
+    }
+
+    .grid3 {
+        grid-area: 2 / 1 / 3 / 2;
+        text-align: left;
+    }
+
+    .grid4 {
+        grid-area: 2 / 2 / 3 / 3;
+        text-align: right;
     }
 }
