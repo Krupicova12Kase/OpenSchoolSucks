@@ -116,25 +116,24 @@ def znamka_from_percentage(percentage) -> int:
                 
 @app.route('/',methods=["GET","POST"])
 def func():
-    session = requests.Session()
-    session.verify = certificate
-    # -------------------------------
-    # LOGIN
-    # -------------------------------
-    if request.method == "GET":
-        return render_template("index.html")
-    
-    # Handle POST request - get form data
-    username = request.form.get("username")
-    password = request.form.get("password")
     try:
+        session = requests.Session()
+        session.verify = certificate
+        # -------------------------------
+        # LOGIN
+        # -------------------------------
+        if request.method == "GET":
+            return render_template("index.html")
+        
+        # Handle POST request - get form data
+        username = request.form.get("username")
+        password = request.form.get("password")
         response = session.post("https://is.psjg.cz/sign/in", data={                                 
             "name": username,
             "password": password,
             "signIn": "Přihlásit se",
             "_do": "signInForm-submit"})
         print(response.status_code)
-        print(response.text)
         flask_session["cookies"] = session.cookies.get_dict()
         
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
@@ -168,18 +167,36 @@ def func():
 
         # Results ig
         flask_session["studentId"] = student_info[1]
-        response2 = session.get("https://is.psjg.cz/student/student-exam-overview",
+        responseGrid = session.get("https://is.psjg.cz",
                         params={
-                            "studentExamOverview-examGrid-id": "1",
-                            "studentId": student_info[1],
-                            "subjectId": "1619",
-                            "do": "studentExamOverview-examGrid-export"
+                            "studentScoreGrid-id": 1,
+                            "do": "studentScoreGrid-export"
                         })
-        print(response2.status_code)
-
+        print(responseGrid.status_code)
+        with open("responsegrid.csv", "w", encoding="utf_8") as f:
+            f.write(responseGrid.text)
+        df = csv_to_dataframe(text=responseGrid.text)         
+        
+        znamky = []
+        csvlist = df.values.tolist()
+        
+        # Add znamka to csvlist
+        for x,row in enumerate(csvlist):
+            znamky.append(znamka_from_percentage(row[3]))
+        df["Znamka"] = znamky 
+        csvlist = df.values.tolist()   
+        
+        #Get rid of nan values    
+        for x,row in enumerate(csvlist):
+            for y,item in enumerate(row):
+                if pd.isna(item):               
+                    csvlist[x][y] = ""
+                    
+        flask_session["znamky"] = csvlist
         flask_session["subjects"] = student_info[3]
+            
         return redirect(url_for("home"))
-    
+
         # Error handling
     except Exception as e:
         print(f"\n{e}\n")
@@ -231,9 +248,8 @@ def subject(subject_id):
             if pd.isna(item):               
                 csvlist[x][y] = ""
 
-    flask_session["znamky"] = csvlist
+    #flask_session["znamky"] = csvlist
     return render_template("znamka.html", znamky = csvlist)
-    #return redirect(url_for("znamka"))   
 
 # -------------------------------
 # REDIRECTS
@@ -243,13 +259,14 @@ def subject(subject_id):
 def home():
     # Get subjects from saved cookies
     subjects = flask_session.get('subjects')
+    znamky = flask_session.get("znamky")
     
     #Make sure it exists
     if not subjects:
         return redirect(url_for('func'))
         
     # Render the template
-    return render_template("home.html", subjects=subjects)
+    return render_template("home.html", subjects=subjects, znamky=znamky)
 
 if __name__ == "__main__":
     app.run(debug=False)

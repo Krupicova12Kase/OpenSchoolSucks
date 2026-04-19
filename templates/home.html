@@ -16,34 +16,43 @@
         <div class="grid2-main">
             <div class="container">
                 {% for id,name in subjects.items() %}
-                <div class="container-child">
-
-                    <a href="{{ url_for('subject', subject_id=id) }}">
-                        <div class="grid">
-                            <div class="grid1">
-                                {{name}}
-                                <hr class="hr-display">
-                            </div>
-
-                            <div class="grid2">
-                               3
-                            </div>
-
-                            <div class="grid3">
-                                67/100
-                            </div>
-
-                            <div class="grid4">
-                                67%
-                            </div>
+                <a href="{{ url_for('subject', subject_id=id) }}">
+                    <div class="grid">
+                        <div class="grid1">
+                            {{name}}
+                            <hr class="hr-display">
                         </div>
-                    </a>
-                </div>
+
+                        <div class="grid2">
+                            3
+                        </div>
+
+                        <div class="grid3">
+                            67/100
+                        </div>
+
+                        <div class="grid4">
+                            67%
+                        </div>
+                    </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
         <div class="grid3-main">
-            <h1>Grid 3 here!</h1>
+            <div class="container">
+                {%for row in znamky%}
+                <div class="grid-znamka">
+                    <div class="grid-znamka-1">{{row[1]}}</div>
+                    <div class="grid-znamka-2">{{row[0]}} </div>
+                    <div class="grid-znamka-3">{{row[2]}}</div>
+                    <div class="grid-znamka-4">{{row[6]}}</div>
+                    <div class="grid-znamka-5">{{row[3]}}</div>
+                    <div class="grid-znamka-6">{{row[4]}}</div>
+                    <div class="grid-znamka-7">{{row[5]}}</div>
+                </div>
+                {%endfor%}
+            </div>
         </div>
     </div>
 </body>
