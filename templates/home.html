@@ -11,9 +11,7 @@
 <body>
     <div class="grid-main">
         <nav class="grid1-main">
-            <a href="{{ url_for('home') }}">Domů</a>
-            <a href="{{ url_for('portfolio') }}">Portfolio</a>
-            <a href="{{ url_for('zkouseni') }}">Zkoušení</a>
+            {% include 'includes/navbar.html' %}
         </nav>
         <div class="grid2-main">
             <div class="container">
