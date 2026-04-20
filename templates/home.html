@@ -11,29 +11,19 @@
 <body>
     <div class="grid-main">
         <nav class="grid1-main">
-            něco
+            <a href="{{ url_for('home') }}">Domů</a>
+            <a href="{{ url_for('portfolio') }}">Portfolio</a>
+            <a href="{{ url_for('zkouseni') }}">Zkoušení</a>
         </nav>
         <div class="grid2-main">
             <div class="container">
                 {% for id,name in subjects.items() %}
                 <a href="{{ url_for('subject', subject_id=id) }}">
                     <div class="grid">
-                        <div class="grid1">
-                            {{name}}
-                            <hr class="hr-display">
-                        </div>
-
-                        <div class="grid2">
-                            3
-                        </div>
-
-                        <div class="grid3">
-                            67/100
-                        </div>
-
-                        <div class="grid4">
-                            67%
-                        </div>
+                        <div class="grid1">{{name}}<hr class="hr-display"></div>
+                        <div class="grid2">3</div>
+                        <div class="grid3">67/100</div>
+                        <div class="grid4">67%</div>
                     </div>
                 </a>
                 {% endfor %}

@@ -268,5 +268,28 @@ def home():
     # Render the template
     return render_template("home.html", subjects=subjects, znamky=znamky)
 
+# Portfolio
+@app.route('/portfolio') 
+def portfolio():
+    student_id = flask_session.get('studentId')
+    
+    #Make sure it exists
+    if not student_id:
+        return redirect(url_for('func'))
+        
+    # Render the template
+    return render_template("portfolio.html")
+
+# Zkoušení
+@app.route('/zkouseni') 
+def zkouseni():
+    student_id = flask_session.get('studentId')
+    
+    #Make sure it exists
+    if not student_id:
+        return redirect(url_for('func'))
+        
+    # Render the template
+    return render_template("zkouseni.html")
 if __name__ == "__main__":
     app.run(debug=False)

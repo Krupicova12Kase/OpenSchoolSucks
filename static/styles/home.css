@@ -82,12 +82,27 @@ body {
 }
 
 .grid1-main {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     grid-area: 1 / 1 / 2 / 3;
     text-align: center;
     background-color: #1F2A40;
     margin: 0;
     padding: var(--padding);
     color: #ffffff;
+}
+
+/* heading links */
+.grid1-main a:link,
+.grid1-main a:visited,
+.grid1-main a:active {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.grid1-main a:hover {
+  color: #FE7743;
 }
 
 .grid2-main {
@@ -130,7 +145,6 @@ body {
 .grid-znamka-1 {
     /*znamka*/
     grid-area: 1 / 3 / 2 / 4;
-    font-weight: bold;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -151,7 +165,6 @@ body {
 .grid-znamka-3 {
     /*název*/
     grid-area: 1 / 1 / 2 / 2;
-    font-weight: bold;
 }
 
 .grid-znamka-4 {

@@ -67,6 +67,7 @@ input[type=submit]{
   border: 2px solid #1F2A40;
   background-color: #E4E4E4;
   width: 25%;
+  cursor: pointer;
 }
 
 
