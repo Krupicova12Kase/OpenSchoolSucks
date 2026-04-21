@@ -16,6 +16,7 @@ import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
+import pip_system_certs.wrapt_requests
 
 load_dotenv()
 
@@ -24,7 +25,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'default-hodnota')
 REQUEST_NAMES = ["username","password"]
 
 #Requests session
-certificate = os.path.join(os.path.dirname(__file__), 'psjg_chain.crt')
+#certificate = os.path.join(os.path.dirname(__file__), 'psjg_chain.crt')
 
 # Deletes unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
@@ -121,7 +122,7 @@ def znamka_from_percentage(percentage) -> int:
 def func():
     try:
         session = requests.Session()
-        session.verify = certificate
+        #session.verify = certificate
         # -------------------------------
         # LOGIN
         # -------------------------------
@@ -221,7 +222,7 @@ def subject(subject_id):
     if not saved_cookies:
         return redirect(url_for('func'))
     session = requests.Session()
-    session.verify = certificate
+    #session.verify = certificate
     session.cookies.update(saved_cookies)
     
     response = session.get("https://is.psjg.cz/student/student-exam-overview",
