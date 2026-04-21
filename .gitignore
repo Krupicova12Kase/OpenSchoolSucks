@@ -6,3 +6,5 @@ js/keyboard.js
 znamky.csv
 .vscode/settings.json
 responsegrid.csv
+app.py
+.env

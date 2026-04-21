@@ -15,9 +15,12 @@ from io import *
 import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.secret_key = os.environ.get('SECRET_KEY', 'default-hodnota')
 REQUEST_NAMES = ["username","password"]
 
 #Requests session
@@ -292,4 +295,4 @@ def zkouseni():
     # Render the template
     return render_template("zkouseni.html")
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=os.environ.get('DEBUG', False))
