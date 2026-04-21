@@ -24,6 +24,11 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default-hodnota')
 REQUEST_NAMES = ["username","password"]
 
+#attempt?
+import subprocess
+cmd_str = "echo Q |openssl s_client -showcerts -verify 15 -connect google.com:443"
+subprocess.run(cmd_str, shell=True)
+
 #Requests session
 #certificate = os.path.join(os.path.dirname(__file__), 'psjg_chain.crt')
 
