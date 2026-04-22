@@ -16,7 +16,9 @@ import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
-import pip_system_certs.wrapt_requests
+import ssl
+
+#print(ssl.get_server_certificate(("is.psjg.cz", 443)))
 
 load_dotenv()
 
@@ -24,13 +26,19 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default-hodnota')
 REQUEST_NAMES = ["username","password"]
 
-#attempt?
-import subprocess
-cmd_str = "echo Q |openssl s_client -showcerts -verify 15 -connect google.com:443"
-subprocess.run(cmd_str, shell=True)
-
-#Requests session
-#certificate = os.path.join(os.path.dirname(__file__), 'psjg_chain.crt')
+# STUPID CERTIFICATES
+def certificates():
+    psjg_certificate = ssl.get_server_certificate(("is.psjg.cz", 443))
+    with open("certificates/psjg_chain.crt", "w") as f1:
+        f1.write(psjg_certificate)
+        with open("certificates/cert_end.pem", "r",) as f2:
+            f1.write("\n")
+            f1.write(f2.read())
+    
+    f1.close()
+    f2.close()
+certificates()
+certificate = os.path.join(os.path.dirname(__file__), 'certificates', 'psjg_chain.crt')
 
 # Deletes unnecessary spaces, tabs and newlines from text
 def delete_spaces(text:str) -> str:
@@ -127,7 +135,7 @@ def znamka_from_percentage(percentage) -> int:
 def func():
     try:
         session = requests.Session()
-        #session.verify = certificate
+        session.verify = certificate
         # -------------------------------
         # LOGIN
         # -------------------------------
@@ -227,7 +235,7 @@ def subject(subject_id):
     if not saved_cookies:
         return redirect(url_for('func'))
     session = requests.Session()
-    #session.verify = certificate
+    session.verify = certificate
     session.cookies.update(saved_cookies)
     
     response = session.get("https://is.psjg.cz/student/student-exam-overview",
