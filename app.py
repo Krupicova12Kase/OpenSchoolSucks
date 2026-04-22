@@ -27,7 +27,8 @@ app.secret_key = os.environ.get('SECRET_KEY', 'default-hodnota')
 REQUEST_NAMES = ["username","password"]
 
 # STUPID CERTIFICATES
-def certificates():
+def certificates() -> None:
+    print("Getting certificates...")
     psjg_certificate = ssl.get_server_certificate(("is.psjg.cz", 443))
     with open("certificates/psjg_chain.crt", "w") as f1:
         f1.write(psjg_certificate)
@@ -37,6 +38,9 @@ def certificates():
     
     f1.close()
     f2.close()
+    print("Certificates obtained successfully!")
+    return
+    
 certificates()
 certificate = os.path.join(os.path.dirname(__file__), 'certificates', 'psjg_chain.crt')
 
@@ -74,7 +78,7 @@ def get_info(text:str) -> tuple:
     subjectIds = []
     for i in sezam:
         subjectIds.append(i[1]) 
-         
+        
     # "Security" checks
     # Check if list isn't empty      
     if len(sezam) == 0:
@@ -214,98 +218,119 @@ def func():
             
         return redirect(url_for("home"))
 
-        # Error handling
+    # Error handling
+    except requests.exceptions.SSLError:
+        certificates()
+        print(f"\n{e}\n")
+        print(traceback.format_exc())
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="Zkuste obnovit stránku")
+    
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return f"""
-        <h1>Máťa něco pokazil...</h1>
-        <br>
-        <h3>Chyba:</h3><br>
-        <code>{e}</code>
-        <h3>Detaily (stack trace):</h3><br>
-        <code>{traceback.format_exc()}</code>"""
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
         
 #znamky
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
-    saved_cookies = flask_session.get('cookies')
-    student_id = flask_session.get('studentId')
-    
-    if not saved_cookies:
-        return redirect(url_for('func'))
-    session = requests.Session()
-    session.verify = certificate
-    session.cookies.update(saved_cookies)
-    
-    response = session.get("https://is.psjg.cz/student/student-exam-overview",
-                        params={
-                            "studentExamOverview-examGrid-id": "1",
-                            "studentId": student_id,
-                            "subjectId": subject_id,
-                            "do": "studentExamOverview-examGrid-export"
-                        })
-    
-    #Save response to CSV  
-    print(response.status_code)
-    df = csv_to_dataframe(text=response.text)         
-    
-    znamky = []
-    csvlist = df.values.tolist()
-    
-    # Add znamka to csvlist
-    for x,row in enumerate(csvlist):
-        znamky.append(znamka_from_percentage(row[5]))
-    df["Znamka"] = znamky 
-    csvlist = df.values.tolist()   
-    
-    #Get rid of nan values    
-    for x,row in enumerate(csvlist):
-        for y,item in enumerate(row):
-            if pd.isna(item):               
-                csvlist[x][y] = ""
+    try:
+        saved_cookies = flask_session.get('cookies')
+        student_id = flask_session.get('studentId')
+        
+        if not saved_cookies:
+            return redirect(url_for('func'))
+        session = requests.Session()
+        session.verify = certificate
+        session.cookies.update(saved_cookies)
+        
+        response = session.get("https://is.psjg.cz/student/student-exam-overview",
+                            params={
+                                "studentExamOverview-examGrid-id": "1",
+                                "studentId": student_id,
+                                "subjectId": subject_id,
+                                "do": "studentExamOverview-examGrid-export"
+                            })
+        
+        #Save response to CSV  
+        print(response.status_code)
+        df = csv_to_dataframe(text=response.text)         
+        
+        znamky = []
+        csvlist = df.values.tolist()
+        
+        # Add znamka to csvlist
+        for x,row in enumerate(csvlist):
+            znamky.append(znamka_from_percentage(row[5]))
+        df["Znamka"] = znamky 
+        csvlist = df.values.tolist()   
+        
+        #Get rid of nan values    
+        for x,row in enumerate(csvlist):
+            for y,item in enumerate(row):
+                if pd.isna(item):               
+                    csvlist[x][y] = ""
 
-    #flask_session["znamky"] = csvlist
+        #flask_session["znamky"] = csvlist
+    except Exception as e:
+        print(f"\n{e}\n")
+        print(traceback.format_exc())
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
     return render_template("znamka.html", znamky = csvlist)
 
 # -------------------------------
 # REDIRECTS
 # -------------------------------
- 
+
 @app.route('/home') 
 def home():
-    # Get subjects from saved cookies
-    subjects = flask_session.get('subjects')
-    znamky = flask_session.get("znamky")
-    
-    #Make sure it exists
-    if not subjects:
-        return redirect(url_for('func'))
+    try:
+        # Get subjects from saved cookies
+        subjects = flask_session.get('subjects')
+        znamky = flask_session.get("znamky")
         
-    # Render the template
+        #Make sure it exists
+        if not subjects:
+            return redirect(url_for('func'))
+            
+        # Render the template
+    except Exception as e:
+        print(f"\n{e}\n")
+        print(traceback.format_exc())
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="Nastala chyba při načítání domovské stránky")
+
     return render_template("home.html", subjects=subjects, znamky=znamky)
 
 # Portfolio
 @app.route('/portfolio') 
 def portfolio():
-    student_id = flask_session.get('studentId')
-    
-    #Make sure it exists
-    if not student_id:
-        return redirect(url_for('func'))
+    try:
+        student_id = flask_session.get('studentId')
         
+        #Make sure it exists
+        if not student_id:
+            return redirect(url_for('func'))
+    except Exception as e:
+        print(f"\n{e}\n")
+        print(traceback.format_exc())
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
     # Render the template
     return render_template("portfolio.html")
 
 # Zkoušení
 @app.route('/zkouseni') 
 def zkouseni():
-    student_id = flask_session.get('studentId')
-    
-    #Make sure it exists
-    if not student_id:
-        return redirect(url_for('func'))
+    try:
+        student_id = flask_session.get('studentId')
         
+        #Make sure it exists
+        if not student_id:
+            return redirect(url_for('func'))
+            
+    except Exception as e:
+        print(f"\n{e}\n")
+        print(traceback.format_exc())
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+    
     # Render the template
     return render_template("zkouseni.html")
 if __name__ == "__main__":

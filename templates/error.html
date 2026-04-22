@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/error.css') }}">
+</head>
+
+<body>
+    <h1>Máťa něco pokazil...</h1>
+    <br>
+    {{ message }}
+    <h3>Chyba:</h3><br>
+    <code>{{ exception }}</code>
+    <h3>Detaily (stack trace):</h3><br>
+    <code>{{ traceback }}</code>
+</body>
+
+</html>
