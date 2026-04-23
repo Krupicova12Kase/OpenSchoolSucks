@@ -6,36 +6,43 @@
 
 #Imports
 import traceback
-from flask import Flask, flash, request, redirect, url_for, render_template, jsonify, session as flask_session
+from flask import Flask, flash, request, redirect, url_for, render_template, jsonify, session as flask_session_custom
+from flask_session import Session
 import os
 import requests
 from bs4 import BeautifulSoup, diagnose
-import csv
 from io import *
 import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
-import ssl
+from ssl import get_server_certificate
 
-#print(ssl.get_server_certificate(("is.psjg.cz", 443)))
-
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default-hodnota')
 REQUEST_NAMES = ["username","password"]
 
+# Server side session to prevent cookies from being too big to handle
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 # STUPID CERTIFICATES
 def certificates() -> None:
     print("Getting certificates...")
-    psjg_certificate = ssl.get_server_certificate(("is.psjg.cz", 443))
+    psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
+    # Open file for merging
     with open("certificates/psjg_chain.crt", "w") as f1:
+        # Write first half from the website
         f1.write(psjg_certificate)
+        #Write second half from file (https://letsencrypt.org/)
         with open("certificates/cert_end.pem", "r",) as f2:
             f1.write("\n")
             f1.write(f2.read())
-    
+    # Close everything
     f1.close()
     f2.close()
     print("Certificates obtained successfully!")
@@ -56,7 +63,6 @@ def csv_to_dataframe(text:str) -> pd.DataFrame:
 # Get info about student from HTML
 def get_info(text:str) -> tuple:
     sezam = []
-    subject_mappings = {}
     # Get full HTML webpage (Kdo tohle sakra dělal, kdyby to bylo na mě, tak udělám API)
     soup = BeautifulSoup(text, "html.parser")
     for table in soup.find_all('table'): #Find all tables in the HTML file
@@ -67,17 +73,10 @@ def get_info(text:str) -> tuple:
                     query = urlparse(url).query
                     params = parse_qs(query)
 
-                    subject_id = params.get('subjectId')[0]
                     student_id = params.get('studentId')[0]
                     
-                    subject_mappings.update({subject_id: a_tag.get_text()})
-                    sezam.append([student_id, subject_id])
+                    sezam.append(student_id)
             break
-    
-    # Process subject Ids
-    subjectIds = []
-    for i in sezam:
-        subjectIds.append(i[1]) 
         
     # "Security" checks
     # Check if list isn't empty      
@@ -92,14 +91,11 @@ def get_info(text:str) -> tuple:
     if len(studentIds) > 1:
         return ("ERROR",2)
     
-    return ("OK", student_id, subjectIds, subject_mappings)
+    return ("OK", student_id)
 
 # Gets subjects from HTML text
-def get_csv_subjects(text:str, fieldnames:list) -> tuple:
-    csvfile = StringIO()
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames,delimiter=';')
-
-    writer.writeheader()
+def get_csv_subjects(text:str, fieldnames:list) -> pd.DataFrame:
+    df = pd.DataFrame(columns=fieldnames)
     soup = BeautifulSoup(text, "html.parser")
     try:  
         for table in soup.find_all('table'): #Find all tables in the HTML file
@@ -107,14 +103,22 @@ def get_csv_subjects(text:str, fieldnames:list) -> tuple:
                 for tr in table.find_all('tr'): #Iterate through rows
                     sezam = []
                     for i,td in enumerate(tr.find_all('td')): #Iterate through columns
+                        if not td.a == None:
+                            url = td.a.get("href") #Get URL from link
+                            query = urlparse(url).query
+                            params = parse_qs(query)
+                            subject_id = params.get('subjectId')[0]
+                            sezam.append(subject_id)
                         sezam.append(delete_spaces(td.text))
+                        
                         if i == 3:
-                            writer.writerow({'Předmět': f'{sezam[0]}', 'Bodové hodnocení': f'{sezam[1]}', "Známka": f'{sezam[2]}', "Výsledná známka": f'{sezam[3]}'})
-                            #print(f"{sezam[0]} {sezam[1]} {sezam[2]} {sezam[3]}")
-        return ("OK",csvfile)
+                            df.loc[len(df)] = sezam
+
+        return ("OK",df)
     except Exception as e:
         return ("ERROR",diagnose(soup),e)                
 
+# Calculate grade from percentage
 def znamka_from_percentage(percentage) -> int:
     if str(percentage) == "-":
         return -1
@@ -134,7 +138,13 @@ def znamka_from_percentage(percentage) -> int:
         return 5
     else:
         return 0
-                
+
+def split_percentage_and_points(text:str) -> tuple:
+    # '89,0 / 97,0 (91,75%)'
+    points = text[:text.find("(")].strip()
+    percentage = text[text.find("(")+1:text.find(")")].strip()
+    return (percentage, points)
+
 @app.route('/',methods=["GET","POST"])
 def func():
     try:
@@ -155,39 +165,43 @@ def func():
             "signIn": "Přihlásit se",
             "_do": "signInForm-submit"})
         print(response.status_code)
-        flask_session["cookies"] = session.cookies.get_dict()
+        flask_session_custom["cookies"] = session.cookies.get_dict()
         
         if "Neplatné přihlašovací jméno nebo heslo" in response.text:
             return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo") 
-    
-        # Get subjects from HTML response and write them to CSV file
-        fieldnames = ['Předmět', 'Bodové hodnocení',"Známka","Výsledná známka"] #List of column names for CSV file
-        subjects = get_csv_subjects(response.text, fieldnames)
-        if subjects[0] == "OK":
-            csvfile = subjects[1]
-        elif subjects[0] == "ERROR":
-            print(f"{subjects[1]},\n{subjects[2]}")
-        
-        # Read subjects
-        subjects = []
-        csvfile.seek(0)
-        reader = csv.reader(csvfile, delimiter=';')
-        next(reader) #Skip header row
-        for row in reader:
-            subjects.append(row)
-        
-        student_info = get_info(text = session.get("https://is.psjg.cz/").text)
-        if student_info[0] == "OK":
-            pass
-        elif student_info[0] == "ERROR":
-            return "Error"
         
         # -------------------------------
         # HOMEPAGE
         # -------------------------------
-
+        
+        # Get subjects from HTML response and write them to CSV file
+        fieldnames = ["id","Předmět", "Bodové hodnocení","Známka","Výsledná známka"] #List of column names for CSV file
+        subjects = get_csv_subjects(response.text, fieldnames)
+        if subjects[0] == "OK":
+            SubjcetList = subjects[1].values.tolist()
+        elif subjects[0] == "ERROR":
+            print(f"{subjects[1]},\n{subjects[2]}")
+            raise Exception(f"Error code: {subjects[0]}")
+        
+        # id, název, známka, finální známka, body, procenta
+        for i in SubjcetList:
+            i.append(split_percentage_and_points(i[2])[0])
+            i.append(split_percentage_and_points(i[2])[1])
+            i.pop(2)
+        
+        flask_session_custom["subjects"] = SubjcetList
+        
+        # Read subjects
+        student_info = get_info(text = session.get("https://is.psjg.cz/").text)
+        with open("response.html", "w", encoding="utf_8") as f:
+            f.write(response.text)
+        if student_info[0] == "OK":
+            pass
+        elif student_info[0] == "ERROR":
+            raise Exception(f"Error code: {student_info[1]}")
+        
         # Results ig
-        flask_session["studentId"] = student_info[1]
+        flask_session_custom["studentId"] = student_info[1]
         responseGrid = session.get("https://is.psjg.cz",
                         params={
                             "studentScoreGrid-id": 1,
@@ -213,13 +227,12 @@ def func():
                 if pd.isna(item):               
                     csvlist[x][y] = ""
                     
-        flask_session["znamky"] = csvlist
-        flask_session["subjects"] = student_info[3]
+        flask_session_custom["znamky"] = csvlist
             
         return redirect(url_for("home"))
 
     # Error handling
-    except requests.exceptions.SSLError:
+    except requests.exceptions.SSLError as e:
         certificates()
         print(f"\n{e}\n")
         print(traceback.format_exc())
@@ -234,8 +247,8 @@ def func():
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
     try:
-        saved_cookies = flask_session.get('cookies')
-        student_id = flask_session.get('studentId')
+        saved_cookies = flask_session_custom.get('cookies')
+        student_id = flask_session_custom.get('studentId')
         
         if not saved_cookies:
             return redirect(url_for('func'))
@@ -270,7 +283,7 @@ def subject(subject_id):
                 if pd.isna(item):               
                     csvlist[x][y] = ""
 
-        #flask_session["znamky"] = csvlist
+        #flask_session_custom["znamky"] = csvlist
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
@@ -285,26 +298,26 @@ def subject(subject_id):
 def home():
     try:
         # Get subjects from saved cookies
-        subjects = flask_session.get('subjects')
-        znamky = flask_session.get("znamky")
+        subjects = flask_session_custom.get('subjects')
+        znamky = flask_session_custom.get("znamky")
         
         #Make sure it exists
         if not subjects:
             return redirect(url_for('func'))
             
-        # Render the template
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="Nastala chyba při načítání domovské stránky")
-
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+    
+    # Render the template
     return render_template("home.html", subjects=subjects, znamky=znamky)
 
 # Portfolio
 @app.route('/portfolio') 
 def portfolio():
     try:
-        student_id = flask_session.get('studentId')
+        student_id = flask_session_custom.get('studentId')
         
         #Make sure it exists
         if not student_id:
@@ -313,6 +326,7 @@ def portfolio():
         print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+    
     # Render the template
     return render_template("portfolio.html")
 
@@ -320,7 +334,7 @@ def portfolio():
 @app.route('/zkouseni') 
 def zkouseni():
     try:
-        student_id = flask_session.get('studentId')
+        student_id = flask_session_custom.get('studentId')
         
         #Make sure it exists
         if not student_id:

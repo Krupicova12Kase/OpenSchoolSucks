@@ -8,3 +8,5 @@ znamky.csv
 responsegrid.csv
 app.py
 .env
+response.html
+flask_session

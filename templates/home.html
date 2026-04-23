@@ -15,13 +15,14 @@
         </nav>
         <div class="grid2-main">
             <div class="container">
-                {% for id,name in subjects.items() %}
-                <a href="{{ url_for('subject', subject_id=id) }}">
+                <!-- id, název, známka, finální známka, body, procenta -->
+                {% for i in subjects %}
+                <a href="{{ url_for('subject', subject_id=i[0]) }}">
                     <div class="grid">
-                        <div class="grid1">{{name}}<hr class="hr-display"></div>
-                        <div class="grid2">3</div>
-                        <div class="grid3">67/100</div>
-                        <div class="grid4">67%</div>
+                        <div class="grid1">{{i[1]}}<hr class="hr-display"></div>
+                        <div class="grid2">{{i[2]}}</div>
+                        <div class="grid3">{{i[4]}}</div>
+                        <div class="grid4">{{i[5]}}</div>
                     </div>
                 </a>
                 {% endfor %}
