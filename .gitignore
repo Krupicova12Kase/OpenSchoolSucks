@@ -2,7 +2,6 @@
 .vscode/launch.json
 names.csv
 test.csv
-js/keyboard.js
 znamky.csv
 .vscode/settings.json
 responsegrid.csv
@@ -10,3 +9,5 @@ app.py
 .env
 response.html
 flask_session
+__pycache__
+certificates/psjg_chain.crt

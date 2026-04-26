@@ -97,12 +97,12 @@ body {
 .grid1-main a:link,
 .grid1-main a:visited,
 .grid1-main a:active {
-  color: #ffffff;
-  text-decoration: none;
+    color: #ffffff;
+    text-decoration: none;
 }
 
 .grid1-main a:hover {
-  color: #FE7743;
+    color: #FE7743;
 }
 
 .grid2-main {
@@ -154,7 +154,6 @@ body {
 .grid-znamka-2 {
     /*datum*/
     grid-area: 1 / 2 / 2 / 3;
-    width: 100%;
     box-sizing: border-box;
     border-right: var(--borders);
     border-left: var(--borders);
@@ -211,6 +210,10 @@ body {
     .grid2-main {
         grid-area: 2 / 1 / 3 / 2;
         display: flex;
+        justify-content: center;
+        align-items: center;
+        align-self: center;
+        align-content: center;
     }
 
     .grid3-main {
@@ -218,17 +221,15 @@ body {
         display: flex;
         justify-content: center;
         align-items: center;
+        align-self: center;
+        align-content: center;
     }
 
-    /*grid with grades*/
-    .container {
-        width: 100%;
-    }
-
+    /* grid with subjects */
     .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto 1fr;        
+        grid-template-rows: auto 1fr;
         grid-column-gap: 10px;
         grid-row-gap: 5px;
         padding: 0;
@@ -260,4 +261,41 @@ body {
         grid-area: 2 / 2 / 3 / 3;
         text-align: right;
     }
+
+    /* grid with grades */
+    /*
+    .grid-znamka {
+        grid-template-columns: 1fr 1fr 1fr auto auto auto;
+        grid-template-rows: 1fr 1fr;
+    }
+
+    .grid-znamka-1 {
+        grid-area: 1 / 1 / 3 / 2;
+        font-size: xx-large;
+        border-right: var(--borders);
+    }
+
+    .grid-znamka-2 {
+        grid-area: 3 / 1 / 4 / 2;
+        border-left: 0px;
+    }
+
+    .grid-znamka-3 {
+        grid-area: 1 / 2 / 2 / 4;
+        border-right: 0px;
+    }
+
+    .grid-znamka-4 {
+        grid-area: 2 / 2 / 3 / 3;
+    }
+
+    .grid-znamka-5 {
+        grid-area: 2 / 3 / 3 / 4;
+        border-right: 0px
+    }
+
+    .grid-znamka-6 {
+        grid-area: 3 / 2 / 4 / 4;
+    }
+    */
 }
