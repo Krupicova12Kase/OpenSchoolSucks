@@ -19,7 +19,9 @@
                 {% for i in subjects %}
                 <a href="{{ url_for('subject', subject_id=i[0]) }}">
                     <div class="grid">
-                        <div class="grid1">{{i[1]}}<hr class="hr-display"></div>
+                        <div class="grid1">{{i[1]}}
+                            <hr class="hr-display">
+                        </div>
                         <div class="grid2">{{i[2]}}</div>
                         <div class="grid3">{{i[4]}}</div>
                         <div class="grid4">{{i[5]}}</div>
@@ -30,15 +32,27 @@
         </div>
         <div class="grid3-main">
             <div class="container">
+                <div class="grid-znamka">
+                    <div class="grid-znamka-1"> < </div> <!-- známka -->
+                    <div class="grid-znamka-7"> > </div> <!-- předmět -->
+                    <div class="grid-znamka-2"></div> <!-- datum -->
+                    <div class="grid-znamka-3"></div> <!-- název -->
+                    <div class="grid-znamka-4"></div> <!-- procenta -->
+                    <div class="grid-znamka-5"></div> <!-- body -->
+                    <div class="grid-znamka-6"></div> <!-- popis -->
+
+                </div>
+                <hr style="width: 100%; border: 1px solid black; border-radius: 5px;">
+                <!-- datum, název, předmět, procenta, body, popis, známka -->
                 {%for row in znamky%}
                 <div class="grid-znamka">
-                    <div class="grid-znamka-1">{{row[1]}}</div>
-                    <div class="grid-znamka-2">{{row[0]}} </div>
-                    <div class="grid-znamka-3">{{row[2]}}</div>
-                    <div class="grid-znamka-4">{{row[6]}}</div>
-                    <div class="grid-znamka-5">{{row[3]}}</div>
-                    <div class="grid-znamka-6">{{row[4]}}</div>
-                    <div class="grid-znamka-7">{{row[5]}}</div>
+                    <div class="grid-znamka-1">{{row[6]}}</div> <!-- známka -->
+                    <div class="grid-znamka-2">{{row[0]}}</div> <!-- datum -->
+                    <div class="grid-znamka-3">{{row[1]}}</div> <!-- název -->
+                    <div class="grid-znamka-4">{{row[3]}}</div> <!-- procenta -->
+                    <div class="grid-znamka-5">{{row[4]}}</div> <!-- body -->
+                    <div class="grid-znamka-6">{{row[5]}}</div> <!-- popis -->
+                    <div class="grid-znamka-7">{{row[2]}}</div> <!-- předmět -->
                 </div>
                 {%endfor%}
             </div>
