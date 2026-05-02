@@ -110,9 +110,14 @@ body {
     padding: var(--padding);
 }
 
+/* radek-start / sloupec-start / radek-konec / sloupec-konec */
 .grid3-main {
-    grid-area: 2 / 2 / 3 / 3;
-    text-align: right;
+    grid-area: 3 / 1 / 4 / 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    align-content: center;
     padding: var(--padding);
 }
 
@@ -131,7 +136,7 @@ body {
 .grid-znamka {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-rows: auto;
+    grid-template-rows: 1fr;
     grid-column-gap: 10px;
     grid-row-gap: 5px;
     background-color: #e4e4e4;
@@ -143,7 +148,7 @@ body {
 
 .grid-znamka-1 {
     /*znamka*/
-    grid-area: 1 / 3 / 2 / 4;
+    grid-area: 1/1/2/2;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -153,7 +158,7 @@ body {
 
 .grid-znamka-2 {
     /*datum*/
-    grid-area: 1 / 2 / 2 / 3;
+    grid-area: 1 / 3 / 2 / 4;
     box-sizing: border-box;
     border-right: var(--borders);
     border-left: var(--borders);
@@ -162,18 +167,18 @@ body {
 
 .grid-znamka-3 {
     /*název*/
-    grid-area: 1 / 1 / 2 / 2;
+    grid-area: 1 / 4 / 2 / 5;
 }
 
 .grid-znamka-4 {
     /*procenta*/
-    grid-area: 1 / 4 / 2 / 5;
+    grid-area: 1 / 5 / 2 / 6;
     border-right: var(--borders);
 }
 
 .grid-znamka-5 {
     /*body*/
-    grid-area: 1 / 5 / 2 / 6;
+    grid-area: 1 / 6 / 2 / 7;
     border-right: var(--borders);
     padding-left: 10px;
     height: auto;
@@ -181,11 +186,13 @@ body {
 
 .grid-znamka-6 {
     /*popis*/
-    grid-area: 1 / 6 / 2 / 7;
+    grid-area: 1 / 7 / 2 / 8;
+    border-right: var(--borders);
 }
 
 .grid-znamka-7 {
-    grid-area: 1 / 7 / 2 / 8;
+    /* předmět */
+    grid-area: 1 / 2 / 2 / 3;
     padding-left: 10px;
     height: auto;
 }
@@ -263,39 +270,42 @@ body {
     }
 
     /* grid with grades */
-    /*
+
     .grid-znamka {
-        grid-template-columns: 1fr 1fr 1fr auto auto auto;
-        grid-template-rows: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr 1fr;
     }
 
     .grid-znamka-1 {
-        grid-area: 1 / 1 / 3 / 2;
+        grid-area: 1 / 1 / 4 / 2;
         font-size: xx-large;
         border-right: var(--borders);
     }
 
     .grid-znamka-2 {
-        grid-area: 3 / 1 / 4 / 2;
+        grid-area: 4 / 1 / 5 / 2;
         border-left: 0px;
     }
 
     .grid-znamka-3 {
-        grid-area: 1 / 2 / 2 / 4;
+        grid-area: 2 / 2 / 3 / 4;
         border-right: 0px;
     }
 
     .grid-znamka-4 {
-        grid-area: 2 / 2 / 3 / 3;
+        grid-area: 3 / 2 / 4 / 3;
     }
 
     .grid-znamka-5 {
-        grid-area: 2 / 3 / 3 / 4;
+        grid-area: 3 / 3 / 4 / 4;
         border-right: 0px
     }
 
     .grid-znamka-6 {
-        grid-area: 3 / 2 / 4 / 4;
+        grid-area: 2 / 1 / 4 / 2;
     }
-    */
+
+    .grid-znamka-7 {
+        grid-area: 1 / 1 / 2 / 4;
+    }
 }
