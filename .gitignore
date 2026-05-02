@@ -1,9 +1,7 @@
 .venv
-.vscode/launch.json
 names.csv
 test.csv
 znamky.csv
-.vscode/settings.json
 responsegrid.csv
 app.py
 .env
