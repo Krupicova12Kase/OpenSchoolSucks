@@ -41,7 +41,7 @@ def certificates() -> None:
         # Write first half from the website
         f1.write(psjg_certificate)
         # Write second half from file (https://letsencrypt.org/)
-        with open("certificates/cert_end.pem", "r",) as f2:
+        with open("certificates/r12.pem", "r",) as f2:
             f1.write("\n")
             f1.write(f2.read())
 
