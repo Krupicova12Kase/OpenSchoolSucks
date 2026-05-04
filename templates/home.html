@@ -30,12 +30,20 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="grid3-main">
+        <div class="grid3-main" id="znamky">
             <div class="container">
                 <div class="grid-znamka">
-                    <div class="grid-znamka-1"> < </div> <!-- známka -->
-                    <div class="grid-znamka-7"> > </div> <!-- předmět -->
-                    <div class="grid-znamka-2"></div> <!-- datum -->
+                    {% if current_page > 1 %}
+                    <a href="{{ url_for('home', page=current_page - 1, _anchor='znamky' ) }}"><div class="grid-znamka-1"> < </div></a> <!-- známka -->
+                    {% else %}
+                    <span></span>
+                    {% endif %}
+                    {% if current_page < total_pages %}
+                    <a href="{{ url_for('home', page=current_page + 1, _anchor='znamky' ) }}"><div class="grid-znamka-7"> > </div></a> <!-- předmět -->
+                    {% else %}
+                    <span></span>
+                    {% endif %}
+                    <div class="grid-znamka-2">{{ current_page }} / {{ total_pages }}</div> <!-- datum -->
                     <div class="grid-znamka-3"></div> <!-- název -->
                     <div class="grid-znamka-4"></div> <!-- procenta -->
                     <div class="grid-znamka-5"></div> <!-- body -->

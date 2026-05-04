@@ -336,13 +336,19 @@ def home():
         if not subjects:
             return redirect(url_for('func'))
 
+        page = request.args.get('page', 1, type=int)
+        per_page = 10
+        start = (page - 1) * per_page
+        end = start + per_page
+        total_pages = (len(znamky) + per_page - 1) // per_page
+        
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
 
     # Render the template
-    return render_template("home.html", subjects=subjects, znamky=znamky[0:10])
+    return render_template("home.html", subjects=subjects, znamky=znamky[start:end], current_page=page, total_pages=total_pages)
 
 # Portfolio
 
