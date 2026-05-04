@@ -44,19 +44,14 @@ def certificates() -> None:
         with open("certificates/cert_end.pem", "r",) as f2:
             f1.write("\n")
             f1.write(f2.read())
-    # Close everything
-    f1.close()
-    f2.close()
+
     print("Certificates obtained successfully!")
-    with open("certificates/psjg_chain.crt", "r") as f:
-        print(f.read())
     return
 
 
 certificates()
 certificate = os.path.join(os.path.dirname(
     __file__), 'certificates', 'psjg_chain.crt')
-
 # Deletes unnecessary spaces, tabs and newlines from text
 
 
@@ -167,6 +162,7 @@ def split_percentage_and_points(text: str) -> tuple:
 
 @app.route('/', methods=["GET", "POST"])
 def func():
+    global certificate
     try:
         session = requests.Session()
         session.verify = certificate
@@ -271,6 +267,7 @@ def func():
 
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
+    global certificate
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
