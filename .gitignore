@@ -8,4 +8,3 @@ app.py
 response.html
 flask_session
 __pycache__
-certificates/psjg_chain.crt
