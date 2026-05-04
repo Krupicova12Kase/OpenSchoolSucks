@@ -48,6 +48,8 @@ def certificates() -> None:
     f1.close()
     f2.close()
     print("Certificates obtained successfully!")
+    with open("certificates/psjg_chain.crt", "r") as f:
+        print(f.read())
     return
 
 
@@ -253,6 +255,8 @@ def func():
     # Error handling
     except requests.exceptions.SSLError as e:
         certificates()
+        certificate = os.path.join(os.path.dirname(
+            __file__), 'certificates', 'psjg_chain.crt')
         print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="Zkuste obnovit stránku")
@@ -305,6 +309,14 @@ def subject(subject_id):
                     csvlist[x][y] = ""
 
         # flask_session_custom["znamky"] = csvlist
+    except requests.exceptions.SSLError as e:
+        certificates()
+        certificate = os.path.join(os.path.dirname(
+            __file__), 'certificates', 'psjg_chain.crt')
+        print(f"\n{e}\n")
+        print(traceback.format_exc())
+        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="Zkuste obnovit stránku")
+
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())

@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Flask (development mode)",
+            "name": "Flask app (development mode)",
             "type": "debugpy",
             "request": "launch",
             "module": "flask",
