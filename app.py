@@ -11,19 +11,19 @@ from flask_session import Session
 import os
 import requests
 from bs4 import BeautifulSoup, diagnose
-from io import *
+from io import StringIO
 import re
 import pandas as pd
 from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
 from ssl import get_server_certificate
+import colorama
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'default-hodnota')
-REQUEST_NAMES = ["username", "password"]
+app.secret_key = os.environ.get('SECRET_KEY')
 
 # Server side session to prevent cookies from being too big to handle
 app.config["SESSION_PERMANENT"] = False
@@ -172,81 +172,88 @@ def func():
         if request.method == "GET":
             return render_template("index.html")
 
-        # Handle POST request - get form data
-        username = request.form.get("username")
-        password = request.form.get("password")
-        response = session.post("https://is.psjg.cz/sign/in", data={
-            "name": username,
-            "password": password,
-            "signIn": "Přihlásit se",
-            "_do": "signInForm-submit"})
-        print(response.status_code)
-        flask_session_custom["cookies"] = session.cookies.get_dict()
+        if request.method == "POST":
+            # Handle POST request - get form data
+            username = request.form.get("username")
+            password = request.form.get("password")
+            response = session.post("https://is.psjg.cz/sign/in", data={
+                "name": username,
+                "password": password,
+                "signIn": "Přihlásit se",
+                "_do": "signInForm-submit"})
+            if response.status_code == 200:
+                flask_session_custom["cookies"] = session.cookies.get_dict()
 
-        if "Neplatné přihlašovací jméno nebo heslo" in response.text:
-            return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo")
+                if "Neplatné přihlašovací jméno nebo heslo" in response.text:
+                    return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo")
 
-        # -------------------------------
-        # HOMEPAGE
-        # -------------------------------
+                # -------------------------------
+                # HOMEPAGE
+                # -------------------------------
 
-        # Get subjects from HTML response and write them to CSV file
-        fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka",
-                      "Výsledná známka"]  # List of column names for CSV file
-        subjects = get_csv_subjects(response.text, fieldnames)
-        if subjects[0] == "OK":
-            SubjcetList = subjects[1].values.tolist()
-        elif subjects[0] == "ERROR":
-            print(f"{subjects[1]},\n{subjects[2]}")
-            raise Exception(f"Error code: {subjects[0]}")
+                # Get subjects from HTML response and write them to CSV file
+                fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka",
+                              "Výsledná známka"]  # List of column names for CSV file
+                subjects = get_csv_subjects(response.text, fieldnames)
+                if subjects[0] == "OK":
+                    SubjcetList = subjects[1].values.tolist()
+                elif subjects[0] == "ERROR":
+                    print(f"{subjects[1]},\n{subjects[2]}")
+                    raise Exception(f"Error code: {subjects[0]}")
 
-        # id, název, známka, finální známka, body, procenta
-        for i in SubjcetList:
-            i.append(split_percentage_and_points(i[2])[0])
-            i.append(split_percentage_and_points(i[2])[1])
-            i.pop(2)
+                # id, název, známka, finální známka, body, procenta
+                for i in SubjcetList:
+                    i.append(split_percentage_and_points(i[2])[0])
+                    i.append(split_percentage_and_points(i[2])[1])
+                    i.pop(2)
 
-        flask_session_custom["subjects"] = SubjcetList
+                flask_session_custom["subjects"] = SubjcetList
 
-        # Read subjects
-        student_info = get_info(text=session.get("https://is.psjg.cz/").text)
-        with open("response.html", "w", encoding="utf_8") as f:
-            f.write(response.text)
-        if student_info[0] == "OK":
-            pass
-        elif student_info[0] == "ERROR":
-            raise Exception(f"Error code: {student_info[1]}")
+                # Read subjects
+                student_info = get_info(
+                    text=session.get("https://is.psjg.cz/").text)
+                with open("response.html", "w", encoding="utf_8") as f:
+                    f.write(response.text)
+                if student_info[0] == "OK":
+                    pass
+                elif student_info[0] == "ERROR":
+                    raise Exception(f"Error code: {student_info[1]}")
 
-        # Results ig
-        flask_session_custom["studentId"] = student_info[1]
-        responseGrid = session.get("https://is.psjg.cz",
-                                   params={
-                                       "studentScoreGrid-id": 1,
-                                       "do": "studentScoreGrid-export"
-                                   })
-        print(responseGrid.status_code)
-        with open("responsegrid.csv", "w", encoding="utf_8") as f:
-            f.write(responseGrid.text)
-        df = csv_to_dataframe(text=responseGrid.text)
+                # Results ig
+                flask_session_custom["studentId"] = student_info[1]
+                responseGrid = session.get("https://is.psjg.cz",
+                                           params={
+                                               "studentScoreGrid-id": 1,
+                                               "do": "studentScoreGrid-export"
+                                           })
+                if response.status_code == 200:
+                    print(responseGrid.status_code)
+                    with open("responsegrid.csv", "w", encoding="utf_8") as f:
+                        f.write(responseGrid.text)
+                    df = csv_to_dataframe(text=responseGrid.text)
 
-        znamky = []
-        csvlist = df.values.tolist()
+                    znamky = []
+                    csvlist = df.values.tolist()
 
-        # Add znamka to csvlist
-        for x, row in enumerate(csvlist):
-            znamky.append(znamka_from_percentage(row[3]))
-        df["Znamka"] = znamky
-        csvlist = df.values.tolist()
+                    # Add znamka to csvlist
+                    for x, row in enumerate(csvlist):
+                        znamky.append(znamka_from_percentage(row[3]))
+                    df["Znamka"] = znamky
+                    csvlist = df.values.tolist()
 
-        # Get rid of nan values
-        for x, row in enumerate(csvlist):
-            for y, item in enumerate(row):
-                if pd.isna(item):
-                    csvlist[x][y] = ""
+                    # Get rid of nan values
+                    for x, row in enumerate(csvlist):
+                        for y, item in enumerate(row):
+                            if pd.isna(item):
+                                csvlist[x][y] = ""
 
-        flask_session_custom["znamky"] = csvlist
+                    flask_session_custom["znamky"] = csvlist
 
-        return redirect(url_for("home"))
+                    return redirect(url_for("home"))
+                else:
+                    return render_template("error.html", error=f"response code {response.status_code}", traceback="")
+            else:
+                return render_template("error.html", error=f"response code {response.status_code}", traceback="")
 
     # Error handling
     except requests.exceptions.SSLError as e:
@@ -286,25 +293,27 @@ def subject(subject_id):
                                    "do": "studentExamOverview-examGrid-export"
                                })
 
-        # Save response to CSV
-        print(response.status_code)
-        df = csv_to_dataframe(text=response.text)
+        if response.status_code == 200:
+            # Save response to CSV
+            df = csv_to_dataframe(text=response.text)
 
-        znamky = []
-        csvlist = df.values.tolist()
+            znamky = []
+            csvlist = df.values.tolist()
 
-        # Add znamka to csvlist
-        for x, row in enumerate(csvlist):
-            znamky.append(znamka_from_percentage(row[5]))
-        df["Znamka"] = znamky
-        csvlist = df.values.tolist()
+            # Add znamka to csvlist
+            for x, row in enumerate(csvlist):
+                znamky.append(znamka_from_percentage(row[5]))
+            df["Znamka"] = znamky
+            csvlist = df.values.tolist()
 
-        # Get rid of nan values
-        for x, row in enumerate(csvlist):
-            for y, item in enumerate(row):
-                if pd.isna(item):
-                    csvlist[x][y] = ""
-
+            # Get rid of nan values
+            for x, row in enumerate(csvlist):
+                for y, item in enumerate(row):
+                    if pd.isna(item):
+                        csvlist[x][y] = ""
+            return render_template("znamka.html", znamky=csvlist)
+        else:
+            return render_template("error.html", error=f"Http code {response.status_code}", traceback="")
         # flask_session_custom["znamky"] = csvlist
     except requests.exceptions.SSLError as e:
         certificates()
@@ -318,7 +327,7 @@ def subject(subject_id):
         print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
-    return render_template("znamka.html", znamky=csvlist)
+
 
 # -------------------------------
 # REDIRECTS
@@ -341,14 +350,14 @@ def home():
         start = (page - 1) * per_page
         end = start + per_page
         total_pages = (len(znamky) + per_page - 1) // per_page
-        
+
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
 
     # Render the template
-    return render_template("home.html", subjects=subjects, znamky=znamky[start:end], current_page=page, total_pages=total_pages)
+    return render_template("home.html", subjects=subjects, znamky=znamky[start:end], current=page, total=total_pages)
 
 # Portfolio
 
