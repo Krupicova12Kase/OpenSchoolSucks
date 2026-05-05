@@ -114,7 +114,7 @@ def get_csv_subjects(text: str, fieldnames: list) -> pd.DataFrame:
                     sezam = []
                     # Iterate through columns
                     for i, td in enumerate(tr.find_all('td')):
-                        if not td.a == None:
+                        if not td.a is None:
                             url = td.a.get("href")  # Get URL from link
                             query = urlparse(url).query
                             params = parse_qs(query)
@@ -128,6 +128,33 @@ def get_csv_subjects(text: str, fieldnames: list) -> pd.DataFrame:
         return ("OK", df)
     except Exception as e:
         return ("ERROR", diagnose(soup), e)
+
+
+def get_portfolio(text: str):
+    soup = BeautifulSoup(text, "html.parser")
+    portfoliodict = {"data": []}
+    subdict = {}
+    subsubdict = {}
+    try:
+        for div in soup.find_all("div"):
+            # print("iterating")
+            # print(div["class"])
+            if div["class"] == ["row_achievement"]:
+                if not div.tbody.is_empty_element:
+                    #for #UNFINISHED, continue here :D
+                    subsubdict["name"] = "name"
+                    subsubdict["points"] = 10
+                    subsubdict["description"] = "description"
+                    
+                    subdict["name"] = div.string
+                    subdict["items"] = [{}]
+                    
+                    sezam = portfoliodict["data"]
+                    portfoliodict["data"] = portfoliodict["data"].append(subdict)
+
+    except:
+        pass
+    return
 
 # Calculate grade from percentage
 
@@ -364,12 +391,21 @@ def home():
 
 @app.route('/portfolio')
 def portfolio():
+    global certificate
     try:
+        saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
 
-        # Make sure it exists
-        if not student_id:
+        if not saved_cookies:
             return redirect(url_for('func'))
+        session = requests.Session()
+        session.verify = certificate
+        session.cookies.update(saved_cookies)
+
+        response = session.get(
+            f"https://is.psjg.cz/achievement/view/{student_id}")
+        if response.status_code == 200:
+            get_portfolio(text=response.text)
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
