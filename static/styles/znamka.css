@@ -7,7 +7,7 @@
 a:link,
 a:visited,
 a:active {
-  color: #1f2a40;
+  color: #ffffff;
   text-decoration: none;
 }
 
@@ -31,12 +31,6 @@ body {
   border-radius: var(--border-radius);
   flex-wrap: nowrap;
   align-items: stretch;
-}
-
-.container-child {
-  padding: var(--padding);
-  border-radius: var(--border-radius);
-  text-align: center;
 }
 
 .grid {

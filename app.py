@@ -32,6 +32,8 @@ Session(app)
 
 # STUPID CERTIFICATES
 
+certificate_file = "r12.pem"
+
 
 def certificates() -> None:
     print("Getting certificates...")
@@ -41,7 +43,7 @@ def certificates() -> None:
         # Write first half from the website
         f1.write(psjg_certificate)
         # Write second half from file (https://letsencrypt.org/)
-        with open("certificates/r12.pem", "r",) as f2:
+        with open(f"certificates/{certificate_file}", "r",) as f2:
             f1.write("\n")
             f1.write(f2.read())
 
@@ -130,31 +132,77 @@ def get_csv_subjects(text: str, fieldnames: list) -> pd.DataFrame:
         return ("ERROR", diagnose(soup), e)
 
 
-def get_portfolio(text: str):
+def get_portfolio(text: str) -> dict:
+    # [Konfigurace](./example.jsonc)
     soup = BeautifulSoup(text, "html.parser")
-    portfoliodict = {"data": []}
-    subdict = {}
-    subsubdict = {}
-    try:
-        for div in soup.find_all("div"):
-            # print("iterating")
-            # print(div["class"])
-            if div["class"] == ["row_achievement"]:
-                if not div.tbody.is_empty_element:
-                    #for #UNFINISHED, continue here :D
-                    subsubdict["name"] = "name"
-                    subsubdict["points"] = 10
-                    subsubdict["description"] = "description"
-                    
-                    subdict["name"] = div.string
-                    subdict["items"] = [{}]
-                    
-                    sezam = portfoliodict["data"]
-                    portfoliodict["data"] = portfoliodict["data"].append(subdict)
+    portfoliodict = {}
 
-    except:
-        pass
-    return
+    subsubdict = {}
+    data = []
+    try:
+        # dict
+        for div in soup.find_all("div", class_="row_achievement"):
+            subdict = {}
+            tableVar = div.find_all("table")
+
+            # Checks
+            if not tableVar:
+                raise Exception("Failed to find table in div")
+            tbodyList = div.table.find_all("tbody")
+            if len(tbodyList) >= 2 or not div.table.tbody:
+                raise Exception(
+                    f"Failed to get tbodies. found {tbodyList.len()} total.")
+
+            tBodyVar = tbodyList[0]
+
+            items = []
+            for tr in tBodyVar.find_all("tr"):
+
+                tdVar = tr.find_all("td")
+
+                # Make sure everything is td
+                for td in tdVar:
+                    if not td.name == "td":
+                        raise Exception(
+                            f"Child of tr is not td. Name: {td.name}")
+
+                # subsubdict
+                subsubdict["name"] = delete_spaces(tdVar[0].get_text())
+                subsubdict["points"] = delete_spaces(tdVar[1].get_text())
+                subsubdict["description"] = delete_spaces(tdVar[2].get_text())
+                items.append(subsubdict)
+
+            # Heading
+            h2 = div.find("h2")
+            if not h2:
+                raise Exception("Failed to find h2")
+            name = delete_spaces(h2.get_text())
+
+            # subdict
+            subdict["name"] = name
+            subdict["items"] = items
+
+            data.append(subdict)
+        # Total points and place
+        total = soup.find("div", class_="col-md-6 offset-md-3").find("div").find("h2").get_text()
+        points = delete_spaces(total[total.find(": ")+2:total.find(" b")]) # Extract points
+        place = delete_spaces(total[total.find("(")+1:total.find(". v")]) # Extract place
+        print(points)
+        print(place)
+        try:
+            points = int(points)
+            place = int(place)
+        except ValueError as e:
+            print(f"Error converting to integer: {e}")
+        portfoliodict["data"] = data
+        portfoliodict["points"] = points
+        portfoliodict["place"] = place
+
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
+
+    return portfoliodict
 
 # Calculate grade from percentage
 
@@ -289,12 +337,12 @@ def func():
             __file__), 'certificates', 'psjg_chain.crt')
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="Zkuste obnovit stránku")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}")
 
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+        return render_template("error.html", message="")
 
 # znamky
 
@@ -348,12 +396,12 @@ def subject(subject_id):
             __file__), 'certificates', 'psjg_chain.crt')
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="Zkuste obnovit stránku")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}")
 
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+        return render_template("error.html", message="")
 
 
 # -------------------------------
@@ -381,7 +429,7 @@ def home():
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+        return render_template("error.html", message="")
 
     # Render the template
     return render_template("home.html", subjects=subjects, znamky=znamky[start:end], current=page, total=total_pages)
@@ -405,11 +453,21 @@ def portfolio():
         response = session.get(
             f"https://is.psjg.cz/achievement/view/{student_id}")
         if response.status_code == 200:
-            get_portfolio(text=response.text)
+            import json
+            print(json.dumps(get_portfolio(text=response.text)))
+            
+    except requests.exceptions.SSLError as e:
+        certificates()
+        certificate = os.path.join(os.path.dirname(
+            __file__), 'certificates', 'psjg_chain.crt')
+        print(f"\n{e}\n")
+        print(traceback.format_exc())
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}")
+
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+        return render_template("error.html", message="")
 
     # Render the template
     return render_template("portfolio.html")
@@ -429,11 +487,11 @@ def zkouseni():
     except Exception as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", exception=e, traceback=traceback.format_exc(), message="")
+        return render_template("error.html", message="")
 
     # Render the template
     return render_template("zkouseni.html")
 
 
 if __name__ == "__main__":
-    app.run(debug=os.environ.get('DEBUG', False))
+    app.run(debug=os.environ.get('DEBUG'))

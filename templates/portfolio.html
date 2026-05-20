@@ -1,1 +1,74 @@
-<h1>WIP</h1>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/portfolio.css') }}">
+</head>
+
+<body>
+    <div class="grid-main">
+        <nav class="grid1-main">
+            {% include 'includes/navbar.html' %}
+        </nav>
+        <div class="grid2-main">
+            <div class="container-main">
+                <div class="container">
+                    Celkem 67 bodů
+                </div>
+                <div class="container">
+                    <div class="grid">
+                        <div class="grid1">
+                            <h2>11 Projektové soutěže (SOČ, AMAVET, ICYS)</h2>
+                        </div>
+                        <div class="grid2">
+                            <h2>167</h2>
+                        </div>
+                        <div class="grid3">
+                            <div class="grid-portfolio">
+                                <div class="grid-portfolio-1">
+                                    AMAVET - Krajské kolo"
+                                </div>
+                                <div class="grid-portfolio-2">
+                                    Climate Detectives 1. místo
+                                </div>
+                                <div class="grid-portfolio-3">
+                                    30
+                                </div>
+                            </div>
+
+                            <div class="grid-portfolio">
+                                <div class="grid-portfolio-1">
+                                    Ajina
+                                </div>
+                                <div class="grid-portfolio-2">
+                                    67. místo
+                                </div>
+                                <div class="grid-portfolio-3">
+                                    67
+                                </div>
+                            </div>
+
+                            <div class="grid-portfolio">
+                                <div class="grid-portfolio-1">
+                                    Nemcina
+                                </div>
+                                <div class="grid-portfolio-2">
+                                    Finále Soutěže v předčítání německého textu Bücherwurm, kategorie Kreativ, 2. místo
+                                </div>
+                                <div class="grid-portfolio-3">
+                                    69
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
