@@ -33,23 +33,24 @@ Session(app)
 # STUPID CERTIFICATES
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
-                     "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
+                     "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
 certificate_file = "yr2.pem"
 
+
 def certificates() -> None:
-    print("Sestavuji mega bundle certifikátů...")
     psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
-    
+
     with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f1:
         f1.write(psjg_certificate)
         f1.write("\n")
-        
+
         # Stáhneme úplně všechny známé Let's Encrypt intermediate certifikáty naráz
         for cert_name in certificates_list:
             with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
                 f1.write(f2.read())
                 f1.write("\n")
-            
+
+
 certificates()
 certificate = os.path.join(os.path.dirname(
     __file__), 'certificates', 'psjg_chain.crt')
@@ -101,8 +102,8 @@ def certificate_check() -> bool:
             return False
     return False
 """
-#certificate_check()
-#with open("certificates/psjg_chain.crt", "r") as f:
+# certificate_check()
+# with open("certificates/psjg_chain.crt", "r") as f:
 #    print(f.read())
 # Deletes unnecessary spaces, tabs and newlines from text
 
@@ -285,7 +286,7 @@ def split_percentage_and_points(text: str) -> tuple:
 
 @app.route('/', methods=["GET", "POST", "HEAD"])
 def func():
-    
+
     try:
         session = requests.Session()
         session.verify = certificate
@@ -394,7 +395,7 @@ def func():
 
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
-    
+
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -487,7 +488,7 @@ def home():
 
 @app.route('/portfolio')
 def portfolio():
-    
+
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
