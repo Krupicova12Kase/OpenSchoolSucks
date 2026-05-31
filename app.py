@@ -58,6 +58,7 @@ certificate = os.path.join(os.path.dirname(
 
 
 def certificate_check() -> bool:
+    global certificate_file
     certificates(cert_file="yr2.pem")
     try:
         requests.get("https://is.psjg.cz", verify=certificate)
