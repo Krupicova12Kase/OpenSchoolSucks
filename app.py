@@ -58,6 +58,7 @@ certificate = os.path.join(os.path.dirname(
 
 
 def certificate_check() -> bool:
+    global certificate_file
     for cert in certificates_list:
         certificate_file = cert
         certificates(cert_file=certificate_file)
