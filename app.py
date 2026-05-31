@@ -37,23 +37,23 @@ certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
 certificate_file = "yr2.pem"
 
 def certificates() -> None:
-    print("Getting certificates...")
+    print("Sestavuji mega bundle certifikátů...")
     psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
-    # Open file for merging
-    with open("certificates/psjg_chain.crt", "w") as f1:
-        # Write first half from the website
+    
+    with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f1:
         f1.write(psjg_certificate)
-        # Write second half from file (https://letsencrypt.org/)
-        with open(f"certificates/{certificate_file}", "r",) as f2:
-            f1.write("\n")
-            f1.write(f2.read())
-
-    print("Certificates obtained successfully!")
-    return
-
+        f1.write("\n")
+        
+        # Stáhneme úplně všechny známé Let's Encrypt intermediate certifikáty naráz
+        for cert_name in certificates_list:
+            with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
+                f1.write(f2.read())
+                f1.write("\n")
+            
+certificates()
 certificate = os.path.join(os.path.dirname(
     __file__), 'certificates', 'psjg_chain.crt')
-certificates()
+
 """
 def certificates(cert_file:str) -> None:
     print("Getting certificates...")
@@ -102,8 +102,8 @@ def certificate_check() -> bool:
     return False
 """
 #certificate_check()
-with open("certificates/psjg_chain.crt", "r") as f:
-    print(f.read())
+#with open("certificates/psjg_chain.crt", "r") as f:
+#    print(f.read())
 # Deletes unnecessary spaces, tabs and newlines from text
 
 
