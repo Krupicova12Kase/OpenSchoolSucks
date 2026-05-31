@@ -37,7 +37,7 @@ certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
 certificate_file = "r12.pem"
 
 
-def certificates() -> None:
+def certificates(cert_file:str) -> None:
     print("Getting certificates...")
     psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
     # Open file for merging
@@ -45,7 +45,7 @@ def certificates() -> None:
         # Write first half from the website
         f1.write(psjg_certificate)
         # Write second half from file (https://letsencrypt.org/)
-        with open(f"certificates/{certificate_file}", "r",) as f2:
+        with open(f"certificates/{cert_file}", "r",) as f2:
             f1.write("\n")
             f1.write(f2.read())
 
@@ -60,7 +60,7 @@ certificate = os.path.join(os.path.dirname(
 def certificate_check() -> bool:
     for cert in certificates_list:
         certificate_file = cert
-        certificates()
+        certificates(cert_file=certificate_file)
         try:
             requests.get("https://is.psjg.cz", verify=certificate)
             print(f"Certificate {certificate_file} works!")
