@@ -43,7 +43,7 @@ def certificates() -> None:
     with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f1:
         f1.write(psjg_certificate)
         f1.write("\n")
-        
+
         # Stáhneme úplně všechny známé Let's Encrypt intermediate certifikáty naráz
         for cert_name in certificates_list:
             with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
@@ -51,6 +51,8 @@ def certificates() -> None:
                 f1.write("\n")
 
 
+certificate = os.path.join(os.path.dirname(
+    __file__), 'certificates', 'psjg_chain.crt')
 certificates()
 
 """
