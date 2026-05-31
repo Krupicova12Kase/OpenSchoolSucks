@@ -58,6 +58,18 @@ certificate = os.path.join(os.path.dirname(
 
 
 def certificate_check() -> bool:
+    certificates(cert_file="yr2.pem")
+    try:
+        requests.get("https://is.psjg.cz", verify=certificate)
+        print(f"{Fore.GREEN}Certificate {certificate_file} works!{Fore.RESET}")
+        certificate_file = "yr2.pem"
+        return True
+    except requests.exceptions.SSLError as e:
+        print(f"{Fore.RED}Certificate {certificate_file} failed.{Fore.RESET}")
+    except Exception as e:
+        print(e)
+        return False
+"""
     global certificate_file
     for cert in certificates_list:
         certificate_file = cert
@@ -73,7 +85,7 @@ def certificate_check() -> bool:
             print(e)
             return False
     return False
-
+"""
 certificate_check()
 with open("certificates/psjg_chain.crt", "r") as f:
     print(f.read())
