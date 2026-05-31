@@ -34,9 +34,27 @@ Session(app)
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
                      "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
-certificate_file = "r12.pem"
+certificate_file = "yr2.pem"
 
+def certificates() -> None:
+    print("Getting certificates...")
+    psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
+    # Open file for merging
+    with open("certificates/psjg_chain.crt", "w") as f1:
+        # Write first half from the website
+        f1.write(psjg_certificate)
+        # Write second half from file (https://letsencrypt.org/)
+        with open("certificates/cert_end.pem", "r",) as f2:
+            f1.write("\n")
+            f1.write(f2.read())
 
+    print("Certificates obtained successfully!")
+    return
+
+certificate = os.path.join(os.path.dirname(
+    __file__), 'certificates', 'psjg_chain.crt')
+certificates()
+"""
 def certificates(cert_file:str) -> None:
     print("Getting certificates...")
     psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
@@ -53,10 +71,6 @@ def certificates(cert_file:str) -> None:
     return
 
 
-certificate = os.path.join(os.path.dirname(
-    __file__), 'certificates', 'psjg_chain.crt')
-
-
 def certificate_check() -> bool:
     global certificate_file
     certificates(cert_file="yr2.pem")
@@ -70,7 +84,7 @@ def certificate_check() -> bool:
     except Exception as e:
         print(e)
         return False
-"""
+
     global certificate_file
     for cert in certificates_list:
         certificate_file = cert
@@ -87,7 +101,7 @@ def certificate_check() -> bool:
             return False
     return False
 """
-certificate_check()
+#certificate_check()
 with open("certificates/psjg_chain.crt", "r") as f:
     print(f.read())
 # Deletes unnecessary spaces, tabs and newlines from text
@@ -368,7 +382,7 @@ def func():
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if certificate_check() else "Nepodařilo se najít funkční certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -430,7 +444,7 @@ def subject(subject_id):
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if certificate_check() else "Nepodařilo se najít funkční certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -499,7 +513,7 @@ def portfolio():
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if certificate_check() else "Nepodařilo se najít funkční certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
