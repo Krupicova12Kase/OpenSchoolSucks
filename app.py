@@ -32,7 +32,8 @@ Session(app)
 
 # STUPID CERTIFICATES
 
-certificate_file = "r12.pem"
+certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
+                     "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
 
 
 def certificates() -> None:
@@ -42,18 +43,35 @@ def certificates() -> None:
     with open("certificates/psjg_chain.crt", "w") as f1:
         # Write first half from the website
         f1.write(psjg_certificate)
-        # Write second half from file (https://letsencrypt.org/)
-        with open(f"certificates/{certificate_file}", "r",) as f2:
-            f1.write("\n")
-            f1.write(f2.read())
+
+        for cert in certificates_list:
+            # Write second half from file (https://letsencrypt.org/)
+            with open(f"certificates/{cert}", "r",) as f2:
+                f1.write("\n")
+                f1.write(f2.read())
 
     print("Certificates obtained successfully!")
     return
 
 
-certificates()
 certificate = os.path.join(os.path.dirname(
     __file__), 'certificates', 'psjg_chain.crt')
+
+
+def certificate_check() -> bool:
+    certificates()
+    try:
+        requests.get("https://is.psjg.cz", verify=certificate)
+        print(f"Certificate works!")
+        return True
+    except requests.exceptions.SSLError as e:
+        print(f"certificate failed.")
+    except Exception as e:
+        print(e)
+        return False
+    return False
+
+certificate_check()
 # Deletes unnecessary spaces, tabs and newlines from text
 
 
@@ -233,7 +251,7 @@ def split_percentage_and_points(text: str) -> tuple:
     return (percentage, points)
 
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/', methods=["GET", "POST", "HEAD"])
 def func():
     global certificate
     try:
@@ -330,12 +348,9 @@ def func():
 
     # Error handling
     except requests.exceptions.SSLError as e:
-        certificates()
-        certificate = os.path.join(os.path.dirname(
-            __file__), 'certificates', 'psjg_chain.crt')
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}")
+        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -367,12 +382,12 @@ def subject(subject_id):
                                })
 
         if response.status_code == 200:
-            
+
             # Check for old cookies
             if 'id="frm-signInForm-name"' in response.text:
-                flask_session_custom.pop('cookies', None) # Delete old cookies
+                flask_session_custom.pop('cookies', None)  # Delete old cookies
                 return redirect(url_for('func'))
-            
+
             # Save response to CSV
             df = csv_to_dataframe(text=response.text)
 
@@ -395,12 +410,9 @@ def subject(subject_id):
             return render_template("error.html", error=f"Http code {response.status_code}", traceback="")
         # flask_session_custom["znamky"] = csvlist
     except requests.exceptions.SSLError as e:
-        certificates()
-        certificate = os.path.join(os.path.dirname(
-            __file__), 'certificates', 'psjg_chain.crt')
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}")
+        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -423,7 +435,7 @@ def home():
         # Make sure it exists
         if not subjects or not znamky:
             return redirect(url_for('func'))
-        
+
         page = request.args.get('page', 1, type=int)
         per_page = 10
         start = (page - 1) * per_page
@@ -457,22 +469,19 @@ def portfolio():
         response = session.get(
             f"https://is.psjg.cz/achievement/view/{student_id}")
         if response.status_code == 200:
-            
+
             # Check for old cookies
             if 'id="frm-signInForm-name"' in response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
                 return redirect(url_for('func'))
-            
+
             # Render the template
             return render_template("portfolio.html", portfolio=get_portfolio(text=response.text))
 
     except requests.exceptions.SSLError as e:
-        certificates()
-        certificate = os.path.join(os.path.dirname(
-            __file__), 'certificates', 'psjg_chain.crt')
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}")
+        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
