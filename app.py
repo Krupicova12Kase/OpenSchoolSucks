@@ -52,6 +52,8 @@ def certificates() -> None:
                 f1.write("\n")
 
 
+certificate = os.path.join(os.path.dirname(
+    __file__), 'certificates', 'psjg_chain.crt')
 certificates()
 
 """
