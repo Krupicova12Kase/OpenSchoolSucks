@@ -63,16 +63,19 @@ def certificate_check() -> bool:
         certificates(cert_file=certificate_file)
         try:
             requests.get("https://is.psjg.cz", verify=certificate)
-            print(f"Certificate {certificate_file} works!")
+            print(f"{Fore.GREEN}Certificate {certificate_file} works!{Fore.RESET}")
+            certificate_file = cert
             return True
         except requests.exceptions.SSLError as e:
-            print(f"certificate {certificate_file} failed.")
+            print(f"{Fore.RED}Certificate {certificate_file} failed.{Fore.RESET}")
         except Exception as e:
             print(e)
             return False
     return False
 
 certificate_check()
+with open("certificates/psjg_chain.crt", "r") as f:
+    print(f.read())
 # Deletes unnecessary spaces, tabs and newlines from text
 
 
