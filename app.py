@@ -1,8 +1,8 @@
-################################
+###############################
 # Made by Krupicova12Kase AKA Máťa
 # Licensed under MIT license
 # Report any bugs at https://github.com/Krupicova12Kase/OpenSchoolSucks/issues
-################################
+###############################
 
 # Imports
 import traceback
