@@ -30,29 +30,55 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# STUPID CERTIFICATES
+certificates_list = ["r13.pem", "r12.pem", "ye1.pem", "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
+certificate_file = "Mega Bundle (všechny pod sebou)"
 
-certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
-                     "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
-certificate_file = "yr2.pem"
+# Definujeme absolutní cestu ke složce s certifikáty na základě umístění tohoto souboru
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CERT_DIR = os.path.join(BASE_DIR, 'certificates')
+certificate = os.path.join(CERT_DIR, 'psjg_chain.crt')
 
 def certificates() -> None:
-    print("Sestavuji mega bundle certifikátů...")
-    psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
+    print("Sestavuji mega bundle certifikátů z lokálních souborů...")
     
-    with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f1:
+    # 1. Pojistka: Vytvoříme složku certificates, pokud neexistuje (nutné pro Render)
+    os.makedirs(CERT_DIR, exist_ok=True)
+    
+    # 2. Stáhneme aktuální živý certifikát ze školy
+    try:
+        psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
+    except Exception as e:
+        print(f"{Fore.RED}Chyba: Nepodařilo se stáhnout certifikát z is.psjg.cz: {e}{Fore.RESET}")
+        return
+
+    # 3. Zápis do absolutní cesty `certificate`
+    with open(certificate, "w", encoding="utf-8") as f1:
         f1.write(psjg_certificate)
         f1.write("\n")
         
-        # Stáhneme úplně všechny známé Let's Encrypt intermediate certifikáty naráz
+        # Postupně pod něj přilepíme všechny lokální Let's Encrypt autority
         for cert_name in certificates_list:
-            with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
-                f1.write(f2.read())
-                f1.write("\n")
+            local_cert_path = os.path.join(CERT_DIR, cert_name)
             
+            if os.path.exists(local_cert_path):
+                try:
+                    with open(local_cert_path, "r", encoding="utf-8") as f2:
+                        content = f2.read()
+                        # Rychlá kontrola, zda certifikát není poškozený nebo useknutý
+                        if "-----END CERTIFICATE-----" in content:
+                            f1.write(content)
+                            f1.write("\n")
+                        else:
+                            print(f"{Fore.YELLOW}Varování: Soubor {cert_name} je poškozený nebo nekompletní. Přeskakuji.{Fore.RESET}")
+                except Exception as e:
+                    print(f"Chyba při čtení souboru {cert_name}: {e}")
+            else:
+                print(f"{Fore.YELLOW}Varování: Lokální soubor {local_cert_path} neexistuje!{Fore.RESET}")
+
+    print(f"{Fore.GREEN}Mega bundle úspěšně vytvořen v: {certificate}{Fore.RESET}")
+
+# Spuštění sestavení hned při importu/startu aplikace
 certificates()
-certificate = os.path.join(os.path.dirname(
-    __file__), 'certificates', 'psjg_chain.crt')
 
 """
 def certificates(cert_file:str) -> None:
