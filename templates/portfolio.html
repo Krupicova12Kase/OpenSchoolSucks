@@ -16,29 +16,40 @@
         <div class="grid2-main">
             <div class="container-main">
                 <div class="container">
-                    Celkem 67 bodů
+                    {{ portfolio["points"] }}
                 </div>
+                
                 <div class="container">
+                    {% for data in portfolio["data"] %}
                     <div class="grid">
                         <div class="grid1">
-                            <h2>11 Projektové soutěže (SOČ, AMAVET, ICYS)</h2>
+                            <h2>{{ data["name"] }}</h2>
                         </div>
-                        <div class="grid2">
-                            <h2>167</h2>
-                        </div>
-                        <div class="grid3">
-                            <div class="grid-portfolio">
-                                <div class="grid-portfolio-1">
-                                    AMAVET - Krajské kolo"
-                                </div>
-                                <div class="grid-portfolio-2">
-                                    Climate Detectives 1. místo
-                                </div>
-                                <div class="grid-portfolio-3">
-                                    30
-                                </div>
-                            </div>
 
+                        <div class="grid2">
+                            <h2>🚧</h2>
+                        </div>
+
+                        <div class="grid3">
+                            {% for item in data["items"] %}
+                            <div class="grid-portfolio">
+
+                                <div class="grid-portfolio-1">
+                                    {{ item["name"] }}
+                                </div>
+
+                                <div class="grid-portfolio-2">
+                                    {{ item["description"] }}
+                                </div>
+
+                                <div class="grid-portfolio-3">
+                                    {{ item["points"] }}
+                                </div>
+
+                            </div>
+                            {% endfor %}
+
+                            <!--
                             <div class="grid-portfolio">
                                 <div class="grid-portfolio-1">
                                     Ajina
@@ -62,9 +73,11 @@
                                     69
                                 </div>
                             </div>
+                            -->
 
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

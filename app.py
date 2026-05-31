@@ -17,7 +17,7 @@ import pandas as pd
 from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
 from ssl import get_server_certificate
-import colorama
+from colorama import init, Fore
 
 # Load environment variables
 load_dotenv()
@@ -136,8 +136,6 @@ def get_portfolio(text: str) -> dict:
     # [Konfigurace](./example.jsonc)
     soup = BeautifulSoup(text, "html.parser")
     portfoliodict = {}
-
-    subsubdict = {}
     data = []
     try:
         # dict
@@ -157,16 +155,10 @@ def get_portfolio(text: str) -> dict:
 
             items = []
             for tr in tBodyVar.find_all("tr"):
-
                 tdVar = tr.find_all("td")
 
-                # Make sure everything is td
-                for td in tdVar:
-                    if not td.name == "td":
-                        raise Exception(
-                            f"Child of tr is not td. Name: {td.name}")
-
                 # subsubdict
+                subsubdict = {}
                 subsubdict["name"] = delete_spaces(tdVar[0].get_text())
                 subsubdict["points"] = delete_spaces(tdVar[1].get_text())
                 subsubdict["description"] = delete_spaces(tdVar[2].get_text())
@@ -179,21 +171,25 @@ def get_portfolio(text: str) -> dict:
             name = delete_spaces(h2.get_text())
 
             # subdict
-            subdict["name"] = name
-            subdict["items"] = items
+            if not len(items) == 0:
+                subdict["name"] = name
+                subdict["items"] = items
+                data.append(subdict)
 
-            data.append(subdict)
         # Total points and place
-        total = soup.find("div", class_="col-md-6 offset-md-3").find("div").find("h2").get_text()
-        points = delete_spaces(total[total.find(": ")+2:total.find(" b")]) # Extract points
-        place = delete_spaces(total[total.find("(")+1:total.find(". v")]) # Extract place
-        print(points)
-        print(place)
+        total = soup.find(
+            "div", class_="col-md-6 offset-md-3").find("div").find("h2").get_text()
+        points = delete_spaces(
+            total[total.find(": ")+2:total.find(" b")])  # Extract points
+        place = delete_spaces(
+            total[total.find("(")+1:total.find(". v")])  # Extract place
+
         try:
             points = int(points)
             place = int(place)
         except ValueError as e:
             print(f"Error converting to integer: {e}")
+
         portfoliodict["data"] = data
         portfoliodict["points"] = points
         portfoliodict["place"] = place
@@ -201,7 +197,7 @@ def get_portfolio(text: str) -> dict:
     except Exception as e:
         print(e)
         print(traceback.format_exc())
-
+        return {}
     return portfoliodict
 
 # Calculate grade from percentage
@@ -210,6 +206,8 @@ def get_portfolio(text: str) -> dict:
 def znamka_from_percentage(percentage) -> int:
     if str(percentage) == "-":
         return -1
+    if str(percentage) == "N":
+        return "N"
     if str(percentage)[len(percentage)-1] == "%":
         percentage = percentage[:len(percentage)-1]
         percentage = percentage.replace(",", ".")
@@ -354,7 +352,7 @@ def subject(subject_id):
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
 
-        if not saved_cookies:
+        if not saved_cookies or not student_id:
             return redirect(url_for('func'))
         session = requests.Session()
         session.verify = certificate
@@ -369,6 +367,12 @@ def subject(subject_id):
                                })
 
         if response.status_code == 200:
+            
+            # Check for old cookies
+            if 'id="frm-signInForm-name"' in response.text:
+                flask_session_custom.pop('cookies', None) # Delete old cookies
+                return redirect(url_for('func'))
+            
             # Save response to CSV
             df = csv_to_dataframe(text=response.text)
 
@@ -417,9 +421,9 @@ def home():
         znamky = flask_session_custom.get("znamky")
 
         # Make sure it exists
-        if not subjects:
+        if not subjects or not znamky:
             return redirect(url_for('func'))
-
+        
         page = request.args.get('page', 1, type=int)
         per_page = 10
         start = (page - 1) * per_page
@@ -444,7 +448,7 @@ def portfolio():
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
 
-        if not saved_cookies:
+        if not saved_cookies or not student_id:
             return redirect(url_for('func'))
         session = requests.Session()
         session.verify = certificate
@@ -453,9 +457,15 @@ def portfolio():
         response = session.get(
             f"https://is.psjg.cz/achievement/view/{student_id}")
         if response.status_code == 200:
-            import json
-            print(json.dumps(get_portfolio(text=response.text)))
             
+            # Check for old cookies
+            if 'id="frm-signInForm-name"' in response.text:
+                flask_session_custom.pop('cookies', None)  # Delete old cookies
+                return redirect(url_for('func'))
+            
+            # Render the template
+            return render_template("portfolio.html", portfolio=get_portfolio(text=response.text))
+
     except requests.exceptions.SSLError as e:
         certificates()
         certificate = os.path.join(os.path.dirname(
@@ -468,9 +478,6 @@ def portfolio():
         print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message="")
-
-    # Render the template
-    return render_template("portfolio.html")
 
 # Zkoušení
 

@@ -60,7 +60,7 @@ body {
 /* container for grids*/
 .container {
     display: flex;
-    gap: 0px;
+    gap: 10px;
     padding: 10px;
     flex-direction: column;
     background-color: #FFFFFF;

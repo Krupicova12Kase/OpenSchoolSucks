@@ -27,3 +27,4 @@ def test_grade_calculation():
     assert znamka_from_percentage("44%") == 5
     assert znamka_from_percentage("0%") == 5
     assert znamka_from_percentage("-") == -1
+    assert znamka_from_percentage("N") == "N"
