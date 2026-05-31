@@ -253,7 +253,6 @@ def split_percentage_and_points(text: str) -> tuple:
 
 @app.route('/', methods=["GET", "POST", "HEAD"])
 def func():
-    global certificate
     try:
         session = requests.Session()
         session.verify = certificate
@@ -362,7 +361,6 @@ def func():
 
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
-    global certificate
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -455,7 +453,6 @@ def home():
 
 @app.route('/portfolio')
 def portfolio():
-    global certificate
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
