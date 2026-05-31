@@ -10,13 +10,13 @@ from flask import Flask, flash, request, redirect, url_for, render_template, jso
 from flask_session import Session
 import os
 import requests
+from ssl import get_server_certificate
+from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup, diagnose
 from io import StringIO
 import re
 import pandas as pd
-from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
-from ssl import get_server_certificate
 from colorama import init, Fore
 
 # Load environment variables
@@ -34,6 +34,7 @@ Session(app)
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
                      "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
+certificate_file = "r12.pem"
 
 
 def certificates() -> None:
@@ -43,12 +44,10 @@ def certificates() -> None:
     with open("certificates/psjg_chain.crt", "w") as f1:
         # Write first half from the website
         f1.write(psjg_certificate)
-
-        for cert in certificates_list:
-            # Write second half from file (https://letsencrypt.org/)
-            with open(f"certificates/{cert}", "r",) as f2:
-                f1.write("\n")
-                f1.write(f2.read())
+        # Write second half from file (https://letsencrypt.org/)
+        with open(f"certificates/{certificate_file}", "r",) as f2:
+            f1.write("\n")
+            f1.write(f2.read())
 
     print("Certificates obtained successfully!")
     return
@@ -59,16 +58,18 @@ certificate = os.path.join(os.path.dirname(
 
 
 def certificate_check() -> bool:
-    certificates()
-    try:
-        requests.get("https://is.psjg.cz", verify=certificate)
-        print(f"Certificate works!")
-        return True
-    except requests.exceptions.SSLError as e:
-        print(f"certificate failed.")
-    except Exception as e:
-        print(e)
-        return False
+    for cert in certificates_list:
+        certificate_file = cert
+        certificates()
+        try:
+            requests.get("https://is.psjg.cz", verify=certificate)
+            print(f"Certificate {certificate_file} works!")
+            return True
+        except requests.exceptions.SSLError as e:
+            print(f"certificate {certificate_file} failed.")
+        except Exception as e:
+            print(e)
+            return False
     return False
 
 certificate_check()
@@ -253,6 +254,7 @@ def split_percentage_and_points(text: str) -> tuple:
 
 @app.route('/', methods=["GET", "POST", "HEAD"])
 def func():
+    
     try:
         session = requests.Session()
         session.verify = certificate
@@ -349,7 +351,7 @@ def func():
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if certificate_check() else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -361,6 +363,7 @@ def func():
 
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
+    
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -410,7 +413,7 @@ def subject(subject_id):
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if certificate_check() else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -453,6 +456,7 @@ def home():
 
 @app.route('/portfolio')
 def portfolio():
+    
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -478,7 +482,7 @@ def portfolio():
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if certificate_check() else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
