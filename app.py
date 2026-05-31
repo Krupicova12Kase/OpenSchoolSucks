@@ -30,7 +30,8 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# STUPID CERTIFICATES
+certificates_list = ["r13.pem", "r12.pem", "ye1.pem", "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
+certificate_file = "Mega Bundle (všechny pod sebou)"
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
                      "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
@@ -52,8 +53,6 @@ def certificates() -> None:
 
 
 certificates()
-certificate = os.path.join(os.path.dirname(
-    __file__), 'certificates', 'psjg_chain.crt')
 
 """
 def certificates(cert_file:str) -> None:
