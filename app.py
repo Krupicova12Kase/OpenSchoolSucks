@@ -37,7 +37,7 @@ Session(app)
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
                      "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
-certificates_list = ["root-yr.pem"]
+certificates_list = ["yr2.pem", "isrgrootx1.pem"]
 certificate_file = "yr2.pem"
 
 
@@ -52,6 +52,7 @@ def certificates(cert_list: list) -> None:
         for cert_name in cert_list:
             with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
                 f1.write(f2.read())
+                
                 f1.write("\n")
 
 

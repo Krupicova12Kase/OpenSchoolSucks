@@ -1,10 +1,10 @@
-from app import certificates
+from app import certificates, certificates_list
 import requests
 from os import path
 
 def test_certificate_check():
     certificate = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'certificates', 'psjg_chain.crt')
-    certificates(cert_list=["yr2.pem"])
+    certificates(cert_list=certificates_list)
     try:
         response = requests.get("https://is.psjg.cz", verify=certificate)
         assert response.status_code == 200
