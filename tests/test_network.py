@@ -1,9 +1,9 @@
-from app import certificates, certificates_list
+from app import certificates, certificates_list, certificate_chain
 import requests
 from os import path
 
 def test_certificate_check():
-    certificate = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'certificates', 'psjg_chain.crt')
+    certificate = path.join(path.dirname(path.dirname(path.abspath(__file__))), 'certificates', certificate_chain)
     certificates(cert_list=certificates_list)
     try:
         response = requests.get("https://is.psjg.cz", verify=certificate)
