@@ -18,6 +18,7 @@ import re
 import pandas as pd
 from dotenv import load_dotenv
 from colorama import init, Fore
+from cachelib import FileSystemCache
 
 # Load environment variables
 load_dotenv()
@@ -27,7 +28,9 @@ app.secret_key = os.environ.get('SECRET_KEY')
 
 # Server side session to prevent cookies from being too big to handle
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "cachelib"
+app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir="flask_session")
+
 Session(app)
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem", "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
@@ -35,10 +38,11 @@ certificate_file = "Mega Bundle (všechny pod sebou)"
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
                      "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
+certificates_list = ["root-yr.pem"]
 certificate_file = "yr2.pem"
 
 
-def certificates() -> None:
+def certificates(cert_list: list) -> None:
     psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
 
     with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f1:
@@ -46,7 +50,7 @@ def certificates() -> None:
         f1.write("\n")
 
         # Stáhneme úplně všechny známé Let's Encrypt intermediate certifikáty naráz
-        for cert_name in certificates_list:
+        for cert_name in cert_list:
             with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
                 f1.write(f2.read())
                 f1.write("\n")
@@ -54,7 +58,7 @@ def certificates() -> None:
 
 certificate = os.path.join(os.path.dirname(
     __file__), 'certificates', 'psjg_chain.crt')
-certificates()
+certificates(certificates_list)
 
 """
 def certificates(cert_file:str) -> None:
@@ -352,7 +356,6 @@ def func():
                                                "do": "studentScoreGrid-export"
                                            })
                 if response.status_code == 200:
-                    print(responseGrid.status_code)
                     with open("responsegrid.csv", "w", encoding="utf_8") as f:
                         f.write(responseGrid.text)
                     df = csv_to_dataframe(text=responseGrid.text)
