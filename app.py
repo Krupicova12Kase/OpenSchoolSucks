@@ -12,6 +12,7 @@ import os
 import requests
 from ssl import get_server_certificate
 from urllib.parse import urlparse, parse_qs
+import urllib3
 from bs4 import BeautifulSoup, diagnose
 from io import StringIO
 import re
@@ -21,7 +22,7 @@ from colorama import init, Fore
 from cachelib import FileSystemCache
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
@@ -39,8 +40,9 @@ certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
                      "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
 certificates_list = ["yr2.pem", "isrgrootx1.pem"]
 certificate_file = "yr2.pem"
+certificate_chain = "custom.crt"
 
-
+# Disabled for now
 def certificates(cert_list: list) -> None:
     psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
 
@@ -52,64 +54,18 @@ def certificates(cert_list: list) -> None:
         for cert_name in cert_list:
             with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
                 f1.write(f2.read())
-                
                 f1.write("\n")
 
 
-certificate = os.path.join(os.path.dirname(
-    __file__), 'certificates', 'psjg_chain.crt')
-certificates(certificates_list)
+if os.environ.get('VERIFY', 'True') == 'True':
+    certificate = os.path.join(os.path.dirname(
+        __file__), 'certificates', certificate_chain)
+    # certificates(certificates_list)
+else:
+    print(f"{Fore.RED}!! SSL Verification is disabled !!{Fore.RESET}")
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    certificate = False
 
-"""
-def certificates(cert_file:str) -> None:
-    print("Getting certificates...")
-    psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
-    # Open file for merging
-    with open("certificates/psjg_chain.crt", "w") as f1:
-        # Write first half from the website
-        f1.write(psjg_certificate)
-        # Write second half from file (https://letsencrypt.org/)
-        with open(f"certificates/{cert_file}", "r",) as f2:
-            f1.write("\n")
-            f1.write(f2.read())
-
-    print("Certificates obtained successfully!")
-    return
-
-
-def certificate_check() -> bool:
-    global certificate_file
-    certificates(cert_file="yr2.pem")
-    try:
-        requests.get("https://is.psjg.cz", verify=certificate)
-        print(f"{Fore.GREEN}Certificate {certificate_file} works!{Fore.RESET}")
-        certificate_file = "yr2.pem"
-        return True
-    except requests.exceptions.SSLError as e:
-        print(f"{Fore.RED}Certificate {certificate_file} failed.{Fore.RESET}")
-    except Exception as e:
-        print(e)
-        return False
-
-    global certificate_file
-    for cert in certificates_list:
-        certificate_file = cert
-        certificates(cert_file=certificate_file)
-        try:
-            requests.get("https://is.psjg.cz", verify=certificate)
-            print(f"{Fore.GREEN}Certificate {certificate_file} works!{Fore.RESET}")
-            certificate_file = cert
-            return True
-        except requests.exceptions.SSLError as e:
-            print(f"{Fore.RED}Certificate {certificate_file} failed.{Fore.RESET}")
-        except Exception as e:
-            print(e)
-            return False
-    return False
-"""
-# certificate_check()
-# with open("certificates/psjg_chain.crt", "r") as f:
-#    print(f.read())
 # Deletes unnecessary spaces, tabs and newlines from text
 
 
@@ -128,7 +84,7 @@ def csv_to_dataframe(text: str) -> pd.DataFrame:
 
 def get_info(text: str) -> tuple:
     sezam = []
-    # Get full HTML webpage (Kdo tohle sakra dělal, kdyby to bylo na mě, tak udělám API)
+    # Get full HTML webpage
     soup = BeautifulSoup(text, "html.parser")
     for table in soup.find_all('table'):  # Find all tables in the HTML file
         if table.tr.th.text == "Předmět":  # Search only for table with list of subjects
@@ -547,4 +503,4 @@ def zkouseni():
 
 
 if __name__ == "__main__":
-    app.run(debug=os.environ.get('DEBUG'))
+    app.run(debug=(os.environ.get('DEBUG') == 'True'))
