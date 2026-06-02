@@ -10,68 +10,63 @@ from flask import Flask, flash, request, redirect, url_for, render_template, jso
 from flask_session import Session
 import os
 import requests
+from ssl import get_server_certificate
+from urllib.parse import urlparse, parse_qs
+import urllib3
 from bs4 import BeautifulSoup, diagnose
 from io import StringIO
 import re
 import pandas as pd
-from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
-from ssl import get_server_certificate
 from colorama import init, Fore
+from cachelib import FileSystemCache
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 
 # Server side session to prevent cookies from being too big to handle
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "cachelib"
+app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir="flask_session")
+
 Session(app)
 
-# STUPID CERTIFICATES
+certificates_list = ["r13.pem", "r12.pem", "ye1.pem", "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
+certificate_file = "Mega Bundle (všechny pod sebou)"
 
 certificates_list = ["r13.pem", "r12.pem", "ye1.pem",
-                     "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem"]
+                     "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
+certificates_list = ["yr2.pem", "isrgrootx1.pem"]
+certificate_file = "yr2.pem"
+certificate_chain = "custom.crt"
 
-
-def certificates() -> None:
-    print("Getting certificates...")
+# Disabled for now
+def certificates(cert_list: list) -> None:
     psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
-    # Open file for merging
-    with open("certificates/psjg_chain.crt", "w") as f1:
-        # Write first half from the website
+
+    with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f1:
         f1.write(psjg_certificate)
+        f1.write("\n")
 
-        for cert in certificates_list:
-            # Write second half from file (https://letsencrypt.org/)
-            with open(f"certificates/{cert}", "r",) as f2:
-                f1.write("\n")
+        # Stáhneme úplně všechny známé Let's Encrypt intermediate certifikáty naráz
+        for cert_name in cert_list:
+            with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
                 f1.write(f2.read())
-
-    print("Certificates obtained successfully!")
-    return
+                f1.write("\n")
 
 
-certificate = os.path.join(os.path.dirname(
-    __file__), 'certificates', 'psjg_chain.crt')
+if os.environ.get('VERIFY', 'True') == 'True':
+    certificate = os.path.join(os.path.dirname(
+        __file__), 'certificates', certificate_chain)
+    # certificates(certificates_list)
+else:
+    print(f"{Fore.RED}!! SSL Verification is disabled !!{Fore.RESET}")
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    certificate = False
 
-
-def certificate_check() -> bool:
-    certificates()
-    try:
-        requests.get("https://is.psjg.cz", verify=certificate)
-        print(f"Certificate works!")
-        return True
-    except requests.exceptions.SSLError as e:
-        print(f"certificate failed.")
-    except Exception as e:
-        print(e)
-        return False
-    return False
-
-certificate_check()
 # Deletes unnecessary spaces, tabs and newlines from text
 
 
@@ -90,7 +85,7 @@ def csv_to_dataframe(text: str) -> pd.DataFrame:
 
 def get_info(text: str) -> tuple:
     sezam = []
-    # Get full HTML webpage (Kdo tohle sakra dělal, kdyby to bylo na mě, tak udělám API)
+    # Get full HTML webpage
     soup = BeautifulSoup(text, "html.parser")
     for table in soup.find_all('table'):  # Find all tables in the HTML file
         if table.tr.th.text == "Předmět":  # Search only for table with list of subjects
@@ -253,6 +248,7 @@ def split_percentage_and_points(text: str) -> tuple:
 
 @app.route('/', methods=["GET", "POST", "HEAD"])
 def func():
+
     try:
         session = requests.Session()
         session.verify = certificate
@@ -317,7 +313,6 @@ def func():
                                                "do": "studentScoreGrid-export"
                                            })
                 if response.status_code == 200:
-                    print(responseGrid.status_code)
                     with open("responsegrid.csv", "w", encoding="utf_8") as f:
                         f.write(responseGrid.text)
                     df = csv_to_dataframe(text=responseGrid.text)
@@ -349,7 +344,7 @@ def func():
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -361,6 +356,7 @@ def func():
 
 @app.route('/subject/<subject_id>')
 def subject(subject_id):
+
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -410,7 +406,7 @@ def subject(subject_id):
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -453,6 +449,7 @@ def home():
 
 @app.route('/portfolio')
 def portfolio():
+
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -478,7 +475,7 @@ def portfolio():
     except requests.exceptions.SSLError as e:
         print(f"\n{e}\n")
         print(traceback.format_exc())
-        return render_template("error.html", message=f"Zkuste obnovit stránku." if certificate_check() else "Nepodařilo se najít použitelný certifikát.")
+        return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
         print(f"\n{e}\n")
@@ -507,4 +504,4 @@ def zkouseni():
 
 
 if __name__ == "__main__":
-    app.run(debug=os.environ.get('DEBUG'))
+    app.run(debug=(os.environ.get('DEBUG') == 'True'))
