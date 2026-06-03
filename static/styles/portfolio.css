@@ -1,30 +1,3 @@
-* {
-    box-sizing: border-box;
-}
-
-:root {
-    --border-radius: 15px;
-    --padding: 8px;
-    --borders: 1px solid #ffffff;
-}
-
-a:link,
-a:visited,
-a:active {
-    color: #ffffff;
-    text-decoration: none;
-}
-
-a:hover {
-    color: #FE7743;
-}
-
-body {
-    margin: 0;
-    background-color: #EEF2FA;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
 .grid-main {
     display: grid;
     grid-template-columns: 1fr 1fr;
