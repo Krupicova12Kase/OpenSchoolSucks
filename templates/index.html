@@ -10,16 +10,19 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Přihlásit se</h1>
-        {{error}}
-        <form method="post" class="subcontainer">
-            <label for="name" class="grid1">Uživatelské jméno:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Heslo:</label>
-            <input type="password" id="password" name="password" required>
-            <input type="submit" value="Login">
-        </form>
+    <div class="container-main">
+        <img src="{{ url_for('static',filename='images/psjg.png') }}" alt="Logo" class="logo">
+        <div class="container">
+            <h1>Přihlásit se</h1>
+            {{error}}
+            <form method="post" class="subcontainer">
+                <label for="name" class="grid1">Uživatelské jméno:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Heslo:</label>
+                <input type="password" id="password" name="password" required>
+                <input type="submit" value="Login">
+            </form>
+        </div>
     </div>
 </body>
 

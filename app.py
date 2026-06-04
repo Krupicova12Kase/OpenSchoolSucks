@@ -498,10 +498,12 @@ def zkouseni():
     # Render the template
     return render_template("zkouseni.html")
 
+
 @app.route("/logout")
 def logout():
     flask_session_custom.clear()
     return redirect(url_for('func'))
+
 
 if __name__ == "__main__":
     app.run(debug=(os.environ.get('DEBUG') == 'True'))
