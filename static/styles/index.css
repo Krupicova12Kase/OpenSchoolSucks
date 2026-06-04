@@ -1,3 +1,18 @@
+.container-main{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+
+  /*centering*/
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -7,14 +22,10 @@
   padding: 40px;
   background-color: #ffffff;
   border-radius: var(--border-radius);
+  /*border: 2px solid #1F2A40;*/
   aspect-ratio: 1 / 1;
-
-  /*centering*/
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+  width: 300px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 .subcontainer {
@@ -46,4 +57,8 @@ input[type=submit] {
   background-color: #E4E4E4;
   cursor: pointer;
   width: 100%;
+}
+
+.logo{
+  width: 100px;
 }

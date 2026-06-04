@@ -94,7 +94,6 @@ a:hover {
 
 .grid2-main {
     grid-area: 2 / 1 / 3 / 2;
-    padding: var(--padding);
 }
 
 /* radek-start / sloupec-start / radek-konec / sloupec-konec */
@@ -105,13 +104,12 @@ a:hover {
     align-items: center;
     align-self: center;
     align-content: center;
-    padding: var(--padding);
 }
 
 .container {
     width: fit-content;
     display: flex;
-    gap: 5px;
+    gap: 6px;
     padding: var(--padding);
     flex-direction: column;
     background-color: #FFFFFF;
@@ -135,7 +133,7 @@ a:hover {
 
 .grid-znamka-1 {
     /*znamka*/
-    grid-area: 1/1/2/2;
+    grid-area: 1 / 1 / 2 / 2;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -182,6 +180,37 @@ a:hover {
     grid-area: 1 / 2 / 2 / 3;
     padding-left: 10px;
     height: auto;
+}
+
+/* navigace */
+.grid-navigace {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 10px;
+    grid-row-gap: 5px;
+    background-color: #e4e4e4;
+    padding: var(--padding);
+    border-radius: var(--border-radius);
+    align-items: center;
+    text-align: center;
+}
+
+.grid-navigace-1 {
+    /* známka */
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.grid-navigace-2 {
+    /* datum */
+    grid-area: 1 / 2 / 2 / 3;
+    border-right: var(--borders);
+    border-left: var(--borders);
+}
+
+.grid-navigace-3 {
+    /* název */
+    grid-area: 1 / 3 / 2 / 4;
 }
 
 /* mobile */
@@ -264,7 +293,7 @@ a:hover {
     }
 
     .grid-znamka-1 {
-        grid-area: 1 / 1 / 4 / 2;
+        grid-area: 2 / 1 / 4 / 2;
         font-size: xx-large;
         border-right: var(--borders);
     }
@@ -272,6 +301,7 @@ a:hover {
     .grid-znamka-2 {
         grid-area: 4 / 1 / 5 / 2;
         border-left: 0px;
+        margin-right: 0px;
     }
 
     .grid-znamka-3 {
@@ -289,10 +319,18 @@ a:hover {
     }
 
     .grid-znamka-6 {
-        grid-area: 2 / 1 / 4 / 2;
+        grid-area: 4 / 2 / 5 / 4;
     }
 
     .grid-znamka-7 {
         grid-area: 1 / 1 / 2 / 4;
+    }
+
+    .container {
+        width: 100%;
+    }
+
+    .grid-navigace {
+        grid-template-columns: 1fr 1fr 1fr;
     }
 }

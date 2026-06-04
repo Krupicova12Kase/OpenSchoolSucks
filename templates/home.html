@@ -33,30 +33,27 @@
         </div>
         <div class="grid3-main" id="znamky">
             <div class="container">
-                <div class="grid-znamka">
+                <!-- navigace -->
+                <div class="grid-navigace">
 
                     {% if current > 1 %}
                     <a href="{{ url_for('home', page=current - 1, _anchor='znamky' ) }}">
-                        <div class="grid-znamka-1">
+                        <div class="grid-navigace-1">
                             < </div>
                     </a> <!-- známka -->
                     {% else %}
                     <span></span>
                     {% endif %}
 
-                {% if current < total %} <a href="{{ url_for('home', page=current + 1, _anchor='znamky' ) }}">
-                        <div class="grid-znamka-1"> > </div>
+                    {% if current < total %} <a href="{{ url_for('home', page=current + 1, _anchor='znamky' ) }}">
+                        <div class="grid-navigace-2"> > </div>
                         </a> <!-- předmět -->
                         {% else %}
                         <span></span>
                         {% endif %}
 
 
-                        <div class="grid-znamka-2">{{ current }} / {{ total }}</div> <!-- datum -->
-                        <div class="grid-znamka-3"></div> <!-- název -->
-                        <div class="grid-znamka-4"></div> <!-- procenta -->
-                        <div class="grid-znamka-5"></div> <!-- body -->
-                        <div class="grid-znamka-6"></div> <!-- popis -->
+                        <div class="grid-navigace-3">{{ current }} / {{ total }}</div> <!-- datum -->
 
                 </div>
                 <hr style="width: 100%; border: 1px solid black; border-radius: 5px;">
