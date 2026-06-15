@@ -2,6 +2,14 @@
     --grid-column-padding: 0 10px;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Volitelné, ale odstraní to nechtěnou mezeru pod obrázkem */
+    border-radius: var(--border-radius);
+    border: 10px solid #e4e4e4;
+}
+
 a:link,
 a:visited,
 a:active {
@@ -34,7 +42,7 @@ a:hover {
 .grid-main {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr 1fr;
     grid-column-gap: 10px;
     grid-row-gap: 5px;
     background-color: #EEF2FA;
@@ -98,6 +106,12 @@ a:hover {
 
 /* radek-start / sloupec-start / radek-konec / sloupec-konec */
 .grid3-main {
+    grid-area: 2 / 2 / 3 / 3;
+    width: auto;
+    height: auto;
+}
+
+.grid4-main {
     grid-area: 3 / 1 / 4 / 3;
     display: flex;
     justify-content: center;
@@ -107,7 +121,7 @@ a:hover {
 }
 
 .container {
-    width: fit-content;
+    width: flex;
     display: flex;
     gap: 6px;
     padding: var(--padding);
@@ -115,6 +129,7 @@ a:hover {
     background-color: #FFFFFF;
     border-radius: var(--border-radius);
     flex-wrap: wrap;
+    height: 100%;
 }
 
 /*znamka*/
@@ -172,7 +187,6 @@ a:hover {
 .grid-znamka-6 {
     /*popis*/
     grid-area: 1 / 7 / 2 / 8;
-    border-right: var(--borders);
 }
 
 .grid-znamka-7 {
@@ -248,13 +262,17 @@ a:hover {
         align-content: center;
     }
 
+    .grid4-main {
+        grid-area: 4 / 1 / 5 / 2;
+    }
+
     /* grid with subjects */
     .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto 1fr;
-        grid-column-gap: 10px;
-        grid-row-gap: 5px;
+        grid-column-gap: 0px;
+        grid-row-gap: 0px;
         padding: 0;
     }
 
@@ -272,6 +290,9 @@ a:hover {
         padding: 15px;
         font-size: xx-large;
         border-right: none;
+
+        top: 50%;
+        left: 50%;
     }
 
     .grid3 {
@@ -296,6 +317,10 @@ a:hover {
         grid-area: 2 / 1 / 4 / 2;
         font-size: xx-large;
         border-right: var(--borders);
+
+        /* centering */
+        top: 50%;
+        left: 50%;
     }
 
     .grid-znamka-2 {

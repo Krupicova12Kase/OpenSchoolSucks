@@ -3,7 +3,7 @@
 }
 
 :root {
-    --border-radius: 15px;
+    --border-radius: 16px;
     --padding: 8px;
     --borders: 1px solid #ffffff;
 }
@@ -32,14 +32,23 @@ body {
 }
 
 .grid2-main,
-.grid3-main {
-    padding: 15px 70px;
+.grid3-main,
+.grid4-main {
+    padding: 16px 72px;
 }
 
 @media (max-width: 768px) {
 
     .grid2-main,
-    .grid3-main {
-        padding: 15px 30px;
+    .grid3-main,
+    .grid4-main {
+        padding: 16px 32px;
     }
+}
+
+.in-progress {
+    /*background-color: #E4E4E4;*/
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
 }
