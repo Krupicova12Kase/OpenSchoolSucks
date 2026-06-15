@@ -16,10 +16,16 @@
         </nav>
         <div class="grid2-main">
             <div class="container-main">
-                <div class="container">
-                    {{ portfolio["points"] }}
+
+                <div class="container-total">
+                    <div style="text-align: right;">
+                        {{ portfolio["place"] }}. ve třídě
+                    </div>
+                    <div style="text-align: left;">
+                        Celkem: {{ portfolio["points"] }}
+                    </div>
                 </div>
-                
+
                 <div class="container">
                     {% for data in portfolio["data"] %}
                     <div class="grid">
@@ -28,7 +34,7 @@
                         </div>
 
                         <div class="grid2">
-                            <h2>🚧</h2>
+                            <h2>{{ data["points"] }}</h2>
                         </div>
 
                         <div class="grid3">

@@ -20,6 +20,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from colorama import init, Fore
 from cachelib import FileSystemCache
+from cert_chain_resolver.api import resolve
 
 # Load environment variables
 load_dotenv(override=True)
@@ -34,10 +35,17 @@ app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir="flask_session")
 
 Session(app)
 
+# ---------------------------------
+# CERTIFICATES
+# ---------------------------------
+
+certificate_chain = "custom.crt"
+certificate_file = "custom"
+"""
 # certificates_list = ["r13.pem", "r12.pem", "ye1.pem", "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
 certificates_list = ["yr2.pem", "isrgrootx1.pem"]
 certificate_file = "yr2.pem"
-certificate_chain = "custom.crt"
+
 
 # Disabled for now
 def certificates(cert_list: list) -> None:
@@ -52,7 +60,28 @@ def certificates(cert_list: list) -> None:
             with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
                 f1.write(f2.read())
                 f1.write("\n")
+"""
 
+
+def certificates() -> None:
+    psjg_certificate = str(get_server_certificate(("is.psjg.cz", 443)))
+
+    with open("certificates/psjg_half_chain.crt", "w") as f:
+        f.write(psjg_certificate)
+
+    with open("certificates/psjg_half_chain.crt", 'rb') as f1:
+        fb = f1.read()
+        chain = resolve(fb)
+
+        with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f2:
+            for cert in chain:
+                f2.write(str(cert.export()))
+    print("Obtained certificates successfully!")
+
+path = os.path.join(os.path.dirname(__file__),
+                    "certificates", "psjg_chain.crt")
+
+certificates()
 
 if os.environ.get('VERIFY', 'True') == 'True':
     certificate = os.path.join(os.path.dirname(
@@ -150,6 +179,7 @@ def get_portfolio(text: str) -> dict:
         # dict
         for div in soup.find_all("div", class_="row_achievement"):
             subdict = {}
+            total_points = 0
             tableVar = div.find_all("table")
 
             # Checks
@@ -170,6 +200,7 @@ def get_portfolio(text: str) -> dict:
                 subsubdict = {}
                 subsubdict["name"] = delete_spaces(tdVar[0].get_text())
                 subsubdict["points"] = delete_spaces(tdVar[1].get_text())
+                total_points = + int(delete_spaces(tdVar[1].get_text()))
                 subsubdict["description"] = delete_spaces(tdVar[2].get_text())
                 items.append(subsubdict)
 
@@ -183,6 +214,7 @@ def get_portfolio(text: str) -> dict:
             if not len(items) == 0:
                 subdict["name"] = name
                 subdict["items"] = items
+                subdict["points"] = total_points
                 data.append(subdict)
 
         # Total points and place
