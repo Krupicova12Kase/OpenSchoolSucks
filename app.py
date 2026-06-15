@@ -39,7 +39,7 @@ Session(app)
 # CERTIFICATES
 # ---------------------------------
 
-certificate_chain = "custom.crt"
+certificate_chain = "psjg_chain.crt"
 certificate_file = "custom"
 """
 # certificates_list = ["r13.pem", "r12.pem", "ye1.pem", "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
