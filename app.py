@@ -285,6 +285,9 @@ def func():
         # -------------------------------
         if request.method == "GET":
             return render_template("index.html")
+        
+        if request.method == "HEAD":
+            return ""
 
         if request.method == "POST":
             # Handle POST request - get form data

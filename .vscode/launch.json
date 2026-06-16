@@ -11,10 +11,14 @@
             "module": "flask",
             "env": {
                 "FLASK_APP": "app.py",
-                "FLASK_ENV": "development"
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1"
             },
+            "envFile": "${workspaceFolder}/.env",
             "args": [
-                "run"
+                "run",
+                "--no-reload",
+                "--no-debugger"
             ],
             "jinja": true
         }

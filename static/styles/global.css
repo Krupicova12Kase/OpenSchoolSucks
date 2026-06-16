@@ -37,11 +37,30 @@ body {
     padding: 16px 72px;
 }
 
+#home .grid2-main {
+    padding: 16px 0px 0px 72px;
+    /* nahore vpravo dole vlevo*/
+}
+
+#home .grid3-main {
+    padding: 16px 72px 0px 0px;
+}
+
+#home .grid4-main {
+    padding: 0px 72px 0px 72px;
+}
+
 @media (max-width: 768px) {
 
     .grid2-main,
     .grid3-main,
     .grid4-main {
+        padding: 16px 32px;
+    }
+
+    #home .grid2-main,
+    #home .grid3-main,
+    #home .grid4-main {
         padding: 16px 32px;
     }
 }
