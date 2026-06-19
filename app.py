@@ -200,7 +200,7 @@ def get_portfolio(text: str) -> dict:
                 subsubdict = {}
                 subsubdict["name"] = delete_spaces(tdVar[0].get_text())
                 subsubdict["points"] = delete_spaces(tdVar[1].get_text())
-                total_points = + int(delete_spaces(tdVar[1].get_text()))
+                total_points += int(delete_spaces(tdVar[1].get_text()))
                 subsubdict["description"] = delete_spaces(tdVar[2].get_text())
                 items.append(subsubdict)
 
@@ -344,8 +344,6 @@ def func():
                                                "do": "studentScoreGrid-export"
                                            })
                 if response.status_code == 200:
-                    with open("responsegrid.csv", "w", encoding="utf_8") as f:
-                        f.write(responseGrid.text)
                     df = csv_to_dataframe(text=responseGrid.text)
 
                     znamky = []

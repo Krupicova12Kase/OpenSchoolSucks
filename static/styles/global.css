@@ -47,7 +47,7 @@ body {
 }
 
 #home .grid4-main {
-    padding: 0px 72px 0px 72px;
+    padding: 0px 72px 16px 72px;
 }
 
 @media (max-width: 768px) {
