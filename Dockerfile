@@ -1,3 +1,4 @@
+# For google cloud
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -14,6 +15,7 @@ COPY . .
 
 ENV PYTHONPATH=/app
 ENV FLASK_ENV=production
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 5000
 

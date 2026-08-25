@@ -6,7 +6,7 @@
 
 # Imports
 import traceback
-from flask import Flask, flash, request, redirect, url_for, render_template, jsonify, session as flask_session_custom
+from flask import Flask, flash, request, redirect, url_for, render_template, jsonify, abort, session as flask_session_custom
 from flask_session import Session
 import os
 import requests
@@ -78,6 +78,7 @@ def certificates() -> None:
                 f2.write(str(cert.export()))
     print("Obtained certificates successfully!")
 
+
 path = os.path.join(os.path.dirname(__file__),
                     "certificates", "psjg_chain.crt")
 
@@ -128,7 +129,7 @@ def get_info(text: str) -> tuple:
     # "Security" checks
     # Check if list isn't empty
     if len(sezam) == 0:
-        return ("ERROR", 1)
+        abort(500)
 
     # Check if there aren't multiple student IDs
     studentIds = []
@@ -136,9 +137,9 @@ def get_info(text: str) -> tuple:
         if not i[0] in studentIds:
             studentIds.append(i[0])
     if len(studentIds) > 1:
-        return ("ERROR", 2)
+        abort(500)
 
-    return ("OK", student_id)
+    return (student_id)
 
 # Gets subjects from HTML text
 
@@ -167,7 +168,9 @@ def get_csv_subjects(text: str, fieldnames: list) -> pd.DataFrame:
 
         return ("OK", df)
     except Exception as e:
-        return ("ERROR", diagnose(soup), e)
+        print(traceback.format_exc())
+        print(diagnose(soup))
+        abort(500)
 
 
 def get_portfolio(text: str) -> dict:
@@ -187,6 +190,7 @@ def get_portfolio(text: str) -> dict:
                 raise Exception("Failed to find table in div")
             tbodyList = div.table.find_all("tbody")
             if len(tbodyList) >= 2 or not div.table.tbody:
+                abort(500)
                 raise Exception(
                     f"Failed to get tbodies. found {tbodyList.len()} total.")
 
@@ -207,6 +211,7 @@ def get_portfolio(text: str) -> dict:
             # Heading
             h2 = div.find("h2")
             if not h2:
+                abort(500)
                 raise Exception("Failed to find h2")
             name = delete_spaces(h2.get_text())
 
@@ -230,15 +235,15 @@ def get_portfolio(text: str) -> dict:
             place = int(place)
         except ValueError as e:
             print(f"Error converting to integer: {e}")
+            abort(500)
 
         portfoliodict["data"] = data
         portfoliodict["points"] = points
         portfoliodict["place"] = place
 
     except Exception as e:
-        print(e)
         print(traceback.format_exc())
-        return {}
+        abort(500)
     return portfoliodict
 
 # Calculate grade from percentage
@@ -285,7 +290,7 @@ def func():
         # -------------------------------
         if request.method == "GET":
             return render_template("index.html")
-        
+
         if request.method == "HEAD":
             return ""
 
@@ -327,17 +332,10 @@ def func():
                 flask_session_custom["subjects"] = SubjcetList
 
                 # Read subjects
-                student_info = get_info(
-                    text=session.get("https://is.psjg.cz/").text)
-                with open("response.html", "w", encoding="utf_8") as f:
-                    f.write(response.text)
-                if student_info[0] == "OK":
-                    pass
-                elif student_info[0] == "ERROR":
-                    raise Exception(f"Error code: {student_info[1]}")
+                student_info = get_info(text=session.get("https://is.psjg.cz/").text)
 
                 # Results ig
-                flask_session_custom["studentId"] = student_info[1]
+                flask_session_custom["studentId"] = student_info
                 responseGrid = session.get("https://is.psjg.cz",
                                            params={
                                                "studentScoreGrid-id": 1,
@@ -371,12 +369,10 @@ def func():
 
     # Error handling
     except requests.exceptions.SSLError as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message="")
 

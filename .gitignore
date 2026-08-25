@@ -1,10 +1,6 @@
 .venv
-names.csv
-test.csv
-znamky.csv
-responsegrid.csv
-app.py
 .env
-response.html
 flask_session
 __pycache__
+.pytest_cache
+local
