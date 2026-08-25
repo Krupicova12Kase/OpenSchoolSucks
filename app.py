@@ -35,35 +35,16 @@ app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir="flask_session")
 
 Session(app)
 
-# ---------------------------------
+
 # CERTIFICATES
-# ---------------------------------
 
 certificate_chain = "psjg_chain.crt"
 certificate_file = "custom"
-"""
-# certificates_list = ["r13.pem", "r12.pem", "ye1.pem", "ye2.pem", "yr1.pem", "yr2.pem", "e7.pem", "e8.pem", "root-yr-by-x1.pem", "root-yr.pem"]
-certificates_list = ["yr2.pem", "isrgrootx1.pem"]
-certificate_file = "yr2.pem"
-
-
-# Disabled for now
-def certificates(cert_list: list) -> None:
-    psjg_certificate = get_server_certificate(("is.psjg.cz", 443))
-
-    with open("certificates/psjg_chain.crt", "w", encoding="utf-8") as f1:
-        f1.write(psjg_certificate)
-        f1.write("\n")
-
-        # Put together certificates
-        for cert_name in cert_list:
-            with open(f"certificates/{cert_name}", "r", encoding="utf-8") as f2:
-                f1.write(f2.read())
-                f1.write("\n")
-"""
 
 
 def certificates() -> None:
+    """Generate full certificate chain using cert_chain_resolver because is.psjg.cz sends incomplete
+    """
     psjg_certificate = str(get_server_certificate(("is.psjg.cz", 443)))
 
     with open("certificates/psjg_half_chain.crt", "w") as f:
@@ -79,37 +60,51 @@ def certificates() -> None:
     print("Obtained certificates successfully!")
 
 
-path = os.path.join(os.path.dirname(__file__),
-                    "certificates", "psjg_chain.crt")
-
+path = os.path.join(os.path.dirname(__file__), "certificates", "psjg_chain.crt")
 certificates()
 
 if os.environ.get('VERIFY', 'True') == 'True':
-    certificate = os.path.join(os.path.dirname(
-        __file__), 'certificates', certificate_chain)
-    # certificates(certificates_list)
+    certificate = os.path.join(os.path.dirname(__file__), 'certificates', certificate_chain)
 else:
-    print(f"{Fore.RED}!! SSL Verification is disabled !!{Fore.RESET}")
+    print(f"{Fore.RED}!! SSL Verification disabled !!{Fore.RESET}")
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     certificate = False
 
-# Deletes unnecessary spaces, tabs and newlines from text
-
 
 def delete_spaces(text: str) -> str:
-    return re.sub(r'\s+', ' ', text.strip())
+    """ Deletes unnecessary spaces, tabs and newlines from text
 
-# Saves provided string to CSV using pandas
+    Args:
+        text (str): Text to change
+
+    Returns:
+        str: Chnaged text
+    """
+    return re.sub(r'\s+', ' ', text.strip())
 
 
 def csv_to_dataframe(text: str) -> pd.DataFrame:
+    """Convert provided text to dataframe. Text needs to be in CSV format
+
+    Args:
+        text (str): Text to convert
+
+    Returns:
+        pd.DataFrame: pandas DataFrame
+    """
     df = pd.read_csv(StringIO(text), sep=';')
     return df
 
-# Get info about student from HTML
 
+def get_info(text: str) -> int:
+    """Get info about student from text from is.psjg.cz. Currently returns only student id
 
-def get_info(text: str) -> tuple:
+    Args:
+        text (str): raw HTML
+
+    Returns:
+        int: The student id
+    """
     sezam = []
     # Get full HTML webpage
     soup = BeautifulSoup(text, "html.parser")
@@ -139,12 +134,19 @@ def get_info(text: str) -> tuple:
     if len(studentIds) > 1:
         abort(500)
 
-    return (student_id)
-
-# Gets subjects from HTML text
+    return student_id
 
 
 def get_csv_subjects(text: str, fieldnames: list) -> pd.DataFrame:
+    """Get subjects from HTML of mainpage
+
+    Args:
+        text (str): raw HTML from is.psjg.cz
+        fieldnames (list): List of filednames for DataFrame
+
+    Returns:
+        pd.DataFrame: Dataframe with subjects
+    """
     df = pd.DataFrame(columns=fieldnames)
     soup = BeautifulSoup(text, "html.parser")
     try:
@@ -166,7 +168,7 @@ def get_csv_subjects(text: str, fieldnames: list) -> pd.DataFrame:
                         if i == 3:
                             df.loc[len(df)] = sezam
 
-        return ("OK", df)
+        return df
     except Exception as e:
         print(traceback.format_exc())
         print(diagnose(soup))
@@ -174,7 +176,19 @@ def get_csv_subjects(text: str, fieldnames: list) -> pd.DataFrame:
 
 
 def get_portfolio(text: str) -> dict:
-    # [Konfigurace](./example.jsonc)
+    """Gets portfolio info from HTML. for example return, see example.jsonc
+
+    Args:
+        text (str): raw HTML from is.psjg.cz/achievement
+
+    Raises:
+        Exception: _description_
+        Exception: _description_
+        Exception: _description_
+
+    Returns:
+        dict: Dictionary with total points, place and info about each entry
+    """
     soup = BeautifulSoup(text, "html.parser")
     portfoliodict = {}
     data = []
@@ -223,12 +237,9 @@ def get_portfolio(text: str) -> dict:
                 data.append(subdict)
 
         # Total points and place
-        total = soup.find(
-            "div", class_="col-md-6 offset-md-3").find("div").find("h2").get_text()
-        points = delete_spaces(
-            total[total.find(": ")+2:total.find(" b")])  # Extract points
-        place = delete_spaces(
-            total[total.find("(")+1:total.find(". v")])  # Extract place
+        total = soup.find("div", class_="col-md-6 offset-md-3").find("div").find("h2").get_text()
+        points = delete_spaces(total[total.find(": ") + 2:total.find(" b")])  # Extract points
+        place = delete_spaces(total[total.find("(") + 1:total.find(". v")])  # Extract place
 
         try:
             points = int(points)
@@ -246,16 +257,22 @@ def get_portfolio(text: str) -> dict:
         abort(500)
     return portfoliodict
 
-# Calculate grade from percentage
 
+def znamka_from_percentage(percentage) -> int | str:
+    """Gets number grade from percentage. Returns 0 if percentrage is too low / too high
 
-def znamka_from_percentage(percentage) -> int:
+    Args:
+        percentage (_type_): _description_
+
+    Returns:
+        int | str: Grade (-1 - 5) or "N"
+    """
     if str(percentage) == "-":
         return -1
     if str(percentage) == "N":
         return "N"
-    if str(percentage)[len(percentage)-1] == "%":
-        percentage = percentage[:len(percentage)-1]
+    if str(percentage)[len(percentage) - 1] == "%":
+        percentage = percentage[:len(percentage) - 1]
         percentage = percentage.replace(",", ".")
         percentage = float(percentage)
     if percentage >= 91:
@@ -272,16 +289,25 @@ def znamka_from_percentage(percentage) -> int:
         return 0
 
 
-def split_percentage_and_points(text: str) -> tuple:
+def split_percentage_and_points(text: str) -> tuple[int, int]:
+    """Splits percentage and points from one text (see example from comment below) into tuple
+
+    Args:
+        text (str): Text in format XX,X / XX,X (YY,YY%)
+
+    Returns:
+        tuple[int, int]: tuple with points and percentage
+    """
     # '89,0 / 97,0 (91,75%)'
     points = text[:text.find("(")].strip()
-    percentage = text[text.find("(")+1:text.find(")")].strip()
+    percentage = text[text.find("(") + 1:text.find(")")].strip()
     return (percentage, points)
 
 
 @app.route('/', methods=["GET", "POST", "HEAD"])
 def func():
-
+    """Main endpoint. Handles login, getting student it, grades
+    """
     try:
         session = requests.Session()
         session.verify = certificate
@@ -314,25 +340,20 @@ def func():
                 # -------------------------------
 
                 # Get subjects from HTML response and write them to CSV file
-                fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka",
-                              "Výsledná známka"]  # List of column names for CSV file
-                subjects = get_csv_subjects(response.text, fieldnames)
-                if subjects[0] == "OK":
-                    SubjcetList = subjects[1].values.tolist()
-                elif subjects[0] == "ERROR":
-                    print(f"{subjects[1]},\n{subjects[2]}")
-                    raise Exception(f"Error code: {subjects[0]}")
+                fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka", "Výsledná známka"]  # List of column names for CSV file
+                subjects = get_csv_subjects(response.text, fieldnames).values.tolist()
 
                 # id, název, známka, finální známka, body, procenta
-                for i in SubjcetList:
+                for i in subjects:
                     i.append(split_percentage_and_points(i[2])[0])
                     i.append(split_percentage_and_points(i[2])[1])
                     i.pop(2)
 
-                flask_session_custom["subjects"] = SubjcetList
+                flask_session_custom["subjects"] = subjects
 
                 # Read subjects
-                student_info = get_info(text=session.get("https://is.psjg.cz/").text)
+                student_info = get_info(
+                    text=session.get("https://is.psjg.cz/").text)
 
                 # Results ig
                 flask_session_custom["studentId"] = student_info
@@ -380,8 +401,12 @@ def func():
 
 
 @app.route('/subject/<subject_id>')
-def subject(subject_id):
+def subject(subject_id:int):
+    """Get grades from specific subject 
 
+    Args:
+        subject_id (int): id of the subject to display
+    """
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -429,12 +454,10 @@ def subject(subject_id):
             return render_template("error.html", error=f"Http code {response.status_code}", traceback="")
         # flask_session_custom["znamky"] = csvlist
     except requests.exceptions.SSLError as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message="")
 
@@ -446,6 +469,8 @@ def subject(subject_id):
 
 @app.route('/home')
 def home():
+    """Home page. Displays grades and redirects to subjects. Uses data from main endpoint
+    """
     try:
         # Get subjects from saved cookies
         subjects = flask_session_custom.get('subjects')
@@ -462,7 +487,6 @@ def home():
         total_pages = (len(znamky) + per_page - 1) // per_page
 
     except Exception as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message="")
 
@@ -474,7 +498,8 @@ def home():
 
 @app.route('/portfolio')
 def portfolio():
-
+    """Student prtfolio endpoint
+    """
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
@@ -498,12 +523,10 @@ def portfolio():
             return render_template("portfolio.html", portfolio=get_portfolio(text=response.text))
 
     except requests.exceptions.SSLError as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
 
     except Exception as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message="")
 
@@ -520,7 +543,6 @@ def zkouseni():
             return redirect(url_for('func'))
 
     except Exception as e:
-        print(f"\n{e}\n")
         print(traceback.format_exc())
         return render_template("error.html", message="")
 
@@ -530,6 +552,8 @@ def zkouseni():
 
 @app.route("/logout")
 def logout():
+    """Logout. Redirect to login
+    """
     flask_session_custom.clear()
     return redirect(url_for('func'))
 
