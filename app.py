@@ -4,7 +4,7 @@
 # Report any bugs at https://github.com/Krupicova12Kase/OpenSchoolSucks/issues
 ###############################
 
-# Imports 
+# Imports
 import traceback
 from flask import Flask, flash, request, redirect, url_for, render_template, jsonify, abort, session as flask_session_custom
 from flask_session import Session
