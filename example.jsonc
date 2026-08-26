@@ -1,0 +1,39 @@
+//dict
+{
+    "total": 67,
+    "place": 5,
+    "data": [
+        //subdict
+        {
+            "name": "11 Projektové soutěže (SOČ, AMAVET, ICYS)",
+            "points": 37,
+            "items": [
+                //subsubdict
+                {
+                    "name": "AMAVET - Krajské kolo",
+                    "points": 30,
+                    "description": "Climate Detectives 1. místo"
+                },
+                //subsubdict
+                {
+                    "name": "AMAVET - Mezinárodní kolo",
+                    "points": 50,
+                    "description": "Astro Pi mise Zero"
+                }
+            ]
+        },
+        //subdict
+        {
+            "name": "12 Soutěže v cizích jazycích",
+            "points": 55,
+            "items": [
+                //subsubdict
+                {
+                    "name": "Ústřední kolo - 1. - 3. místo",
+                    "points": 55,
+                    "description": "Finále Soutěže v předčítání německého textu Bücherwurm, kategorie Kreativ, 2. místo"
+                }
+            ]
+        }
+    ]
+}

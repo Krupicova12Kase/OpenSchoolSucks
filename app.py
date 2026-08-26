@@ -105,34 +105,17 @@ def get_info(text: str) -> int:
     Returns:
         int: The student id
     """
-    sezam = []
     # Get full HTML webpage
     soup = BeautifulSoup(text, "html.parser")
-    for table in soup.find_all('table'):  # Find all tables in the HTML file
-        if table.tr.th.text == "Předmět":  # Search only for table with list of subjects
-            for tr in table.find_all('tr'):  # Iterate through rows
-                for a_tag in tr.find_all('a'):  # Search through links
-                    url = a_tag.get("href")  # Get URL from link
-                    query = urlparse(url).query
-                    params = parse_qs(query)
+    search = soup.find_all(title="Téma studentského portfolia")
+    if len(search) > 1 or len(search) < 1:
+        abort(500, f"Found {len(search)} student ids")
 
-                    student_id = params.get('studentId')[0]
-
-                    sezam.append(student_id)
-            break
-
-    # "Security" checks
-    # Check if list isn't empty
-    if len(sezam) == 0:
-        abort(500)
-
-    # Check if there aren't multiple student IDs
-    studentIds = []
-    for i in sezam:
-        if not i[0] in studentIds:
-            studentIds.append(i[0])
-    if len(studentIds) > 1:
-        abort(500)
+    href = search[0].a["href"]
+    try:
+        student_id = int(href[href.rfind("/") + 1:])
+    except ValueError:
+        abort(500, f"Failed to convert to integer {href[href.rfind("/") + 1:]}")
 
     return student_id
 
@@ -329,6 +312,7 @@ def func():
                 "password": password,
                 "signIn": "Přihlásit se",
                 "_do": "signInForm-submit"})
+
             if response.status_code == 200:
                 flask_session_custom["cookies"] = session.cookies.get_dict()
 
@@ -349,11 +333,12 @@ def func():
                     i.append(split_percentage_and_points(i[2])[1])
                     i.pop(2)
 
+                if len(subjects) == 0:
+                    subjects.append(-1)
                 flask_session_custom["subjects"] = subjects
 
                 # Read subjects
-                student_info = get_info(
-                    text=session.get("https://is.psjg.cz/").text)
+                student_info = get_info(text=session.get("https://is.psjg.cz/").text)
 
                 # Results ig
                 flask_session_custom["studentId"] = student_info
@@ -364,8 +349,9 @@ def func():
                                            })
                 if response.status_code == 200:
                     df = csv_to_dataframe(text=responseGrid.text)
-
+                    print(df)
                     znamky = []
+                    df.dropna
                     csvlist = df.values.tolist()
 
                     # Add znamka to csvlist
@@ -374,12 +360,14 @@ def func():
                     df["Znamka"] = znamky
                     csvlist = df.values.tolist()
 
-                    # Get rid of nan values
-                    for x, row in enumerate(csvlist):
-                        for y, item in enumerate(row):
-                            if pd.isna(item):
-                                csvlist[x][y] = ""
+                    # # Get rid of nan values
+                    # for x, row in enumerate(csvlist):
+                    #     for y, item in enumerate(row):
+                    #         if pd.isna(item):
+                    #             csvlist[x][y] = ""
 
+                    if len(csvlist) == 0:
+                        csvlist.append(-1)
                     flask_session_custom["znamky"] = csvlist
 
                     return redirect(url_for("home"))
@@ -401,7 +389,7 @@ def func():
 
 
 @app.route('/subject/<subject_id>')
-def subject(subject_id:int):
+def subject(subject_id: int):
     """Get grades from specific subject 
 
     Args:
@@ -452,7 +440,7 @@ def subject(subject_id:int):
             return render_template("znamka.html", znamky=csvlist)
         else:
             return render_template("error.html", error=f"Http code {response.status_code}", traceback="")
-        # flask_session_custom["znamky"] = csvlist
+
     except requests.exceptions.SSLError as e:
         print(traceback.format_exc())
         return render_template("error.html", message=f"Zkuste obnovit stránku. Použitý certifikát: {certificate_file}" if True else "Nepodařilo se najít funkční certifikát.")
@@ -473,7 +461,7 @@ def home():
     """
     try:
         # Get subjects from saved cookies
-        subjects = flask_session_custom.get('subjects')
+        subjects = flask_session_custom.get("subjects")
         znamky = flask_session_custom.get("znamky")
 
         # Make sure it exists

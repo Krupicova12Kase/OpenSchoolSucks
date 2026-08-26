@@ -16,6 +16,9 @@
         </nav>
         <div class="grid2-main">
             <div class="container">
+                {% if subjects[0] == -1 %}
+                <p style="text-align:center;">Nenalezeny žádné předměty</p>
+                {% else %}
                 <!-- id, název, známka, finální známka, body, procenta -->
                 {% for i in subjects %}
                 <a href="{{ url_for('subject', subject_id=i[0]) }}">
@@ -29,9 +32,9 @@
                     </div>
                 </a>
                 {% endfor %}
+                {% endif %}
             </div>
         </div>
-
         <div class="grid3-main">
             <div class="container">
                 <img src="{{ url_for('static',filename='images/graf.png') }}"
@@ -46,6 +49,9 @@
         <div class="grid4-main" id="znamky">
             <div class="container">
                 <!-- navigace -->
+                {% if znamky[0] == -1 %}
+                <p style="text-align:center;">Nenalezeny žádné známky</p>
+                {% else %}
                 <div class="grid-navigace">
 
                     {% if current > 1 %}
@@ -81,6 +87,7 @@
                     <div class="grid-znamka-7">{{row[2]}}</div> <!-- předmět -->
                 </div>
                 {%endfor%}
+                {%endif%}
             </div>
         </div>
     </div>

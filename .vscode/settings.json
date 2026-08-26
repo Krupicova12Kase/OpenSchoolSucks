@@ -10,5 +10,12 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestArgs": [
         "tests"
-    ]
+    ],
+    "autopep8.args": [
+        "--ignore=E501"
+    ],
+    "emmet.includeLanguages": {
+        "jinja": "html",
+        "html": "jinja"
+    }
 }
