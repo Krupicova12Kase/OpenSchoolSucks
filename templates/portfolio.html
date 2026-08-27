@@ -11,9 +11,7 @@
 
 <body>
     <div class="grid-main">
-        <nav class="grid1-main">
-            {% include 'includes/navbar.html' %}
-        </nav>
+        {% include 'includes/navbar.html' %}
         <div class="grid2-main">
             <div class="container-main">
 
@@ -25,8 +23,8 @@
                         Celkem: {{ portfolio["points"] }}
                     </div>
                 </div>
-                
-                {% if portfolio["data"] is defined and portfolio["data"]|length > 0%}     
+
+                {% if portfolio["data"] is defined and portfolio["data"]|length > 0%}
                 <div class="container">
                     {% for data in portfolio["data"] %}
                     <div class="grid">

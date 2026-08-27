@@ -78,18 +78,6 @@
   padding: 0;
 }
 
-.grid1-main {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  grid-area: 1 / 1 / 2 / 3;
-  text-align: center;
-  background-color: #1F2A40;
-  margin: 0;
-  padding: var(--padding);
-  color: #ffffff;
-}
-
 /* heading links */
 .grid1-main a:link,
 .grid1-main a:visited,

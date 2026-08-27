@@ -349,7 +349,6 @@ def func():
                                            })
                 if response.status_code == 200:
                     df = csv_to_dataframe(text=responseGrid.text)
-                    print(df)
                     znamky = []
                     df.dropna
                     csvlist = df.values.tolist()
@@ -468,7 +467,7 @@ def home():
         if not subjects or not znamky:
             return redirect(url_for('func'))
 
-        page = request.args.get('page', 1, type=int)
+        page = request.args.get('page', 1, type=int) 
         per_page = 10
         start = (page - 1) * per_page
         end = start + per_page

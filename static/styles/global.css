@@ -6,6 +6,7 @@
     --border-radius: 16px;
     --padding: 8px;
     --borders: 1px solid #ffffff;
+    --navbar-height: 36px
 }
 
 a:link,
@@ -31,49 +32,40 @@ body {
 }
 
 .grid2-main,
-.grid3-main,
+.grid3-main{
+    padding: 16px 72px;
+    margin-top: calc(var(--padding) + var(--navbar-height));
+}
 .grid4-main {
     padding: 16px 72px;
 }
 
-#home .grid2-main {
-    padding: 16px 0px 0px 72px;
-    /* nahore vpravo dole vlevo*/
-}
-
-#home .grid3-main {
-    padding: 16px 72px 0px 0px;
-}
-
-#home .grid4-main {
-    padding: 0px 72px 16px 72px;
-}
-
-@media (max-width: 768px) {
-
-    .grid2-main,
-    .grid3-main,
-    .grid4-main {
-        padding: 16px 32px;
-    }
-
-    #home .grid2-main,
-    #home .grid3-main,
-    #home .grid4-main {
-        padding: 16px 32px;
-    }
-}
-
-.in-progress {
-    /*background-color: #E4E4E4;*/
-    border-radius: var(--border-radius);
+/* TOPNAV */
+.grid1-main {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    grid-area: 1 / 1 / 2 / 3;
+    background-color: #1F2A40;
+    margin: 0;
+    color: #ffffff;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--navbar-height);
+    font-size: larger;
+}
+
+.topnav {
+    display: flex;
+    justify-content: space-around;
+    flex: 1;
+    z-index: 99;
 }
 
 /* SIDENAV */
 .sidenav {
-    padding-top: var(--padding);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -84,6 +76,8 @@ body {
     right: 0;
     overflow-x: hidden;
     transition: 0.5s;
+    background-color: #1F2A40;
+    margin-top: var(--navbar-height);
 }
 
 .sidenav a {
@@ -98,18 +92,20 @@ body {
     color: #f1f1f1;
 }
 
-.sidenav .closebutton {
-    position: absolute;
-    top: 0;
-    font-size: 36px;
-    right: 5px;
-}
-
 .sidenavopenbutton {
     cursor: pointer;
+    margin-right: 8px;
+
 }
 
-@media screen and (max-height: 450px) {
+/* MOBILE */
+@media (max-width: 768px) {
+
+    .grid2-main,
+    .grid3-main,
+    .grid4-main {
+        padding: 16px 32px;
+    }
     .sidenav {
         padding-top: 15px;
     }
@@ -117,4 +113,11 @@ body {
     .sidenav a {
         font-size: 18px;
     }
+}
+
+.in-progress {
+    /*background-color: #E4E4E4;*/
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
 }

@@ -20,7 +20,8 @@
                 "--no-reload",
                 "--no-debugger"
             ],
-            "jinja": true
+            "jinja": true,
+            "justMyCode": true
         }
     ]
 }
