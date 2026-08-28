@@ -47,13 +47,19 @@ a[target=_blank]::after {
     display: inline-block;
     width: 14px;
     height: 14px;
-    aspect-ratio: 1;
     margin-left: 10px;
-    background-image: url('/static/images/external-link.png');
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: contain;
-    vertical-align: middle;
+
+    background-color: currentColor;
+
+    mask-image: url('/static/images/external-link.svg');
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+
+    -webkit-mask-image: url('/static/images/external-link.svg');
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
 }
 
 /* TOPNAV */
