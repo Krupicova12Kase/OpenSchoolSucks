@@ -8,8 +8,10 @@
     <div id="sidenav" class="sidenav">
         {# <a href="{{ url_for('settings') }}">Nastavení</a> #}
         {#<a href="{{ url_for('about') }}">O projektu</a> #}
-        <a href="https://github.com/Krupicova12Kase/OpenSchoolSucks" target="_blank" rel="noopener noreferrer">Zdrojový kód</a>
-        <a href="https://github.com/Krupicova12Kase/OpenSchoolSucks/issues" target="_blank" rel="noopener noreferrer">Nahlásit problém</a>
+        <a href="https://github.com/Krupicova12Kase/OpenSchoolSucks" target="_blank" rel="noopener noreferrer"
+            class="external-link">Zdrojový kód</a>
+        <a href="https://github.com/Krupicova12Kase/OpenSchoolSucks/issues" target="_blank"
+            rel="noopener noreferrer">Nahlásit problém</a>
         <a href="{{ url_for('logout') }}">Odhlásit se</a>
     </div>
 
@@ -23,7 +25,7 @@
             console.log(sidenav.style.width)
             if (sidenav.style.width === "0px" || !sidenav.style.width) {
                 console.log("67")
-                sidenav.style.width = "200px";
+                sidenav.style.width = "240px";
             } else {
                 console.log("69")
                 sidenav.style.width = "0px";
