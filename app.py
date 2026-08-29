@@ -32,6 +32,7 @@ app.secret_key = os.environ.get('SECRET_KEY')
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "cachelib"
 app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir="flask_session")
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -247,6 +248,26 @@ def get_portfolio(text: str) -> dict:
     return portfoliodict
 
 
+def get_semesters(text: str) -> list[str]:
+    """Get list of semesters. Example return: [2026/27 - První pololetí, 2026/27 - Druhé pololetí]
+
+    Args:
+        text (str): HTML from homepage of is.psjg.cz
+
+    Returns:
+        list[str]: List of semesters.
+    """
+
+    soup = BeautifulSoup(text, "html.parser")
+    select = soup.find_all("select", id="frm-switchSemester-semester")
+    option_elements = []
+    
+    for option in select[0]:
+        option_elements.append(option.text)
+    
+    return option_elements
+
+
 def znamka_from_percentage(percentage) -> int | str:
     """Gets number grade from percentage. Returns 0 if percentrage is too low / too high
 
@@ -359,13 +380,13 @@ def home():
         session.cookies.update(saved_cookies)
 
         # Read subjects
-        studentinfo_response = session.get("https://is.psjg.cz/", headers=headers)
-        if studentinfo_response.status_code == 200:
-            if 'id="frm-signInForm-name"' in studentinfo_response.text:
+        mainpage_response = session.get("https://is.psjg.cz/", headers=headers)
+        if mainpage_response.status_code == 200:
+            if 'id="frm-signInForm-name"' in mainpage_response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
                 return redirect(url_for("login"))
 
-            student_info = get_info(studentinfo_response.text)
+            student_info = get_info(mainpage_response.text)
 
         flask_session_custom["studentId"] = student_info
         responseGrid = session.get("https://is.psjg.cz",
@@ -394,7 +415,7 @@ def home():
             for row in subjects:
                 percentage, points = split_percentage_and_points(row[2])
                 subjects_display.append([row[0], row[1], row[3], row[4], percentage, points])
-                
+
             # Check for no grades or subjects
             if len(subjects) == 0:
                 subjects.append(-1)
@@ -407,6 +428,10 @@ def home():
             end = start + per_page
             total_pages = (len(csvlist) + per_page - 1) // per_page
 
+            # semesters
+            semesters = get_semesters(mainpage_response.text)
+            flask_session_custom["semesters"] = semesters
+            
             # Render the template
             return render_template("home.html", subjects=subjects_display, znamky=csvlist[start:end], current=page, total=total_pages)
         else:
@@ -539,6 +564,11 @@ def logout():
     flask_session_custom.clear()
     return redirect(url_for("login"))
 
+@app.context_processor
+def inject_semesters():
+    return {
+        "semesters": flask_session_custom.get("semesters", [])
+    }
 
 if __name__ == "__main__":
     app.run(debug=(os.environ.get('DEBUG') == 'True'))

@@ -6,6 +6,13 @@
     </div>
 
     <div id="sidenav" class="sidenav">
+        <form method="post" onchange='if(this.value != 0) { this.form.submit(); }'>
+            <select name="year">
+                {% for i in semesters%}
+                <option>{{ i }}</option>
+                {%endfor%}
+            </select>
+        </form>
         {# <a href="{{ url_for('settings') }}">Nastavení</a> #}
         {#<a href="{{ url_for('about') }}">O projektu</a> #}
         <a href="https://github.com/Krupicova12Kase/OpenSchoolSucks" target="_blank" rel="noopener noreferrer"
