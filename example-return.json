@@ -1,0 +1,61 @@
+{
+    "data": [
+        {
+            "name": "11 Projektov\u00e9 sout\u011b\u017ee (SO\u010c, AMAVET, ICYS)",
+            "items": [
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                },
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                },
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                },
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                }
+            ]
+        },
+        {
+            "name": "12 Sout\u011b\u017ee v ciz\u00edch jazyc\u00edch",
+            "items": [
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                }
+            ]
+        },
+        {
+            "name": "13 P\u0159edm\u011btov\u00e9 sout\u011b\u017ee a olympi\u00e1dy (ne v ciz\u00edch jazyc\u00edch)",
+            "items": [
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                },
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                },
+                {
+                    "name": "Okresn\u00ed kolo",
+                    "points": "10",
+                    "description": "6. m\u00edsto v geografick\u00e9 olympi\u00e1d\u011b z 34 sout\u011b\u017e\u00edc\u00edch, \u00fasp\u011b\u0161n\u00fd \u0159e\u0161itel"
+                }
+            ]
+        }
+    ],
+    "points": 215,
+    "place": 5
+}
