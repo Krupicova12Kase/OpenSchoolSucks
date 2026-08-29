@@ -33,6 +33,12 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "cachelib"
 app.config["SESSION_CACHELIB"] = FileSystemCache(cache_dir="flask_session")
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept-Language': 'cs-CZ,cs;q=0.9,en;q=0.8',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
+}
+
 Session(app)
 
 
@@ -287,8 +293,8 @@ def split_percentage_and_points(text: str) -> tuple[int, int]:
     return (percentage, points)
 
 
-@app.route('/', methods=["GET", "POST", "HEAD"])
-def func():
+@app.route('/', methods=["GET", "POST"])
+def login():
     """Main endpoint. Handles login, getting student it, grades
     """
     try:
@@ -300,18 +306,15 @@ def func():
         if request.method == "GET":
             return render_template("index.html")
 
-        if request.method == "HEAD":
-            return ""
-
         if request.method == "POST":
-            # Handle POST request - get form data
+            # Get form data
             username = request.form.get("username")
             password = request.form.get("password")
             response = session.post("https://is.psjg.cz/sign/in", data={
                 "name": username,
                 "password": password,
                 "signIn": "Přihlásit se",
-                "_do": "signInForm-submit"})
+                "_do": "signInForm-submit"}, headers=headers)
 
             if response.status_code == 200:
                 flask_session_custom["cookies"] = session.cookies.get_dict()
@@ -319,59 +322,13 @@ def func():
                 if "Neplatné přihlašovací jméno nebo heslo" in response.text:
                     return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo")
 
-                # -------------------------------
-                # HOMEPAGE
-                # -------------------------------
-
                 # Get subjects from HTML response and write them to CSV file
                 fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka", "Výsledná známka"]  # List of column names for CSV file
                 subjects = get_csv_subjects(response.text, fieldnames).values.tolist()
-
-                # id, název, známka, finální známka, body, procenta
-                for i in subjects:
-                    i.append(split_percentage_and_points(i[2])[0])
-                    i.append(split_percentage_and_points(i[2])[1])
-                    i.pop(2)
-
-                if len(subjects) == 0:
-                    subjects.append(-1)
+                print(subjects)
                 flask_session_custom["subjects"] = subjects
+                return redirect(url_for("home"))
 
-                # Read subjects
-                student_info = get_info(text=session.get("https://is.psjg.cz/").text)
-
-                # Results ig
-                flask_session_custom["studentId"] = student_info
-                responseGrid = session.get("https://is.psjg.cz",
-                                           params={
-                                               "studentScoreGrid-id": 1,
-                                               "do": "studentScoreGrid-export"
-                                           })
-                if response.status_code == 200:
-                    df = csv_to_dataframe(text=responseGrid.text)
-                    znamky = []
-                    df.dropna
-                    csvlist = df.values.tolist()
-
-                    # Add znamka to csvlist
-                    for x, row in enumerate(csvlist):
-                        znamky.append(znamka_from_percentage(row[3]))
-                    df["Znamka"] = znamky
-                    csvlist = df.values.tolist()
-
-                    # # Get rid of nan values
-                    # for x, row in enumerate(csvlist):
-                    #     for y, item in enumerate(row):
-                    #         if pd.isna(item):
-                    #             csvlist[x][y] = ""
-
-                    if len(csvlist) == 0:
-                        csvlist.append(-1)
-                    flask_session_custom["znamky"] = csvlist
-
-                    return redirect(url_for("home"))
-                else:
-                    return render_template("error.html", error=f"response code {response.status_code}", traceback="")
             else:
                 return render_template("error.html", error=f"response code {response.status_code}", traceback="")
 
@@ -384,12 +341,84 @@ def func():
         print(traceback.format_exc())
         return render_template("error.html", message="")
 
-# znamky
+
+@app.route('/home')
+def home():
+    """Home page. Displays grades and redirects to subjects. Uses data from main endpoint
+    """
+    try:
+        # Get subjects from saved cookies
+        subjects = flask_session_custom.get("subjects")
+        saved_cookies = flask_session_custom.get('cookies')
+
+        if not subjects or not saved_cookies:
+            return redirect(url_for("login"))
+
+        session = requests.Session()
+        session.verify = certificate
+        session.cookies.update(saved_cookies)
+
+        # Read subjects
+        studentinfo_response = session.get("https://is.psjg.cz/", headers=headers)
+        if studentinfo_response.status_code == 200:
+            if 'id="frm-signInForm-name"' in studentinfo_response.text:
+                flask_session_custom.pop('cookies', None)  # Delete old cookies
+                return redirect(url_for("login"))
+
+            student_info = get_info(studentinfo_response.text)
+
+        flask_session_custom["studentId"] = student_info
+        responseGrid = session.get("https://is.psjg.cz",
+                                   params={
+                                       "studentScoreGrid-id": 1,
+                                       "do": "studentScoreGrid-export"
+                                   }, headers=headers)
+        # Results ig
+        if responseGrid.status_code == 200:
+            df = csv_to_dataframe(text=responseGrid.text)
+            znamky = []
+            df = df.fillna("")
+            csvlist = df.values.tolist()
+
+            # Add grades to csvlist
+            for row in csvlist:
+                znamky.append(znamka_from_percentage(row[3]))
+            df["Znamka"] = znamky
+            csvlist = df.values.tolist()
+
+            flask_session_custom["znamky"] = csvlist
+
+            # id, název, známka, finální známka, body, procenta
+            subjects_display = []
+
+            for row in subjects:
+                percentage, points = split_percentage_and_points(row[2])
+                subjects_display.append([row[0], row[1], row[3], row[4], percentage, points])
+                
+            # Check for no grades or subjects
+            if len(subjects) == 0:
+                subjects.append(-1)
+            if len(csvlist) == 0:
+                csvlist.append(-1)
+
+            page = request.args.get('page', 1, type=int)
+            per_page = 10
+            start = (page - 1) * per_page
+            end = start + per_page
+            total_pages = (len(csvlist) + per_page - 1) // per_page
+
+            # Render the template
+            return render_template("home.html", subjects=subjects_display, znamky=csvlist[start:end], current=page, total=total_pages)
+        else:
+            return render_template("error.html", error=f"response code {responseGrid.status_code}", traceback="")
+    except Exception as e:
+        print(traceback.format_exc())
+        return render_template("error.html", message="")
 
 
 @app.route('/subject/<subject_id>')
 def subject(subject_id: int):
-    """Get grades from specific subject 
+    """Get grades from specific subject
 
     Args:
         subject_id (int): id of the subject to display
@@ -399,7 +428,8 @@ def subject(subject_id: int):
         student_id = flask_session_custom.get('studentId')
 
         if not saved_cookies or not student_id:
-            return redirect(url_for('func'))
+            return redirect(url_for("login"))
+
         session = requests.Session()
         session.verify = certificate
         session.cookies.update(saved_cookies)
@@ -410,14 +440,14 @@ def subject(subject_id: int):
                                    "studentId": student_id,
                                    "subjectId": subject_id,
                                    "do": "studentExamOverview-examGrid-export"
-                               })
+                               }, headers=headers)
 
         if response.status_code == 200:
 
             # Check for old cookies
             if 'id="frm-signInForm-name"' in response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
-                return redirect(url_for('func'))
+                return redirect(url_for("login"))
 
             # Save response to CSV
             df = csv_to_dataframe(text=response.text)
@@ -449,40 +479,6 @@ def subject(subject_id: int):
         return render_template("error.html", message="")
 
 
-# -------------------------------
-# REDIRECTS
-# -------------------------------
-
-
-@app.route('/home')
-def home():
-    """Home page. Displays grades and redirects to subjects. Uses data from main endpoint
-    """
-    try:
-        # Get subjects from saved cookies
-        subjects = flask_session_custom.get("subjects")
-        znamky = flask_session_custom.get("znamky")
-
-        # Make sure it exists
-        if not subjects or not znamky:
-            return redirect(url_for('func'))
-
-        page = request.args.get('page', 1, type=int) 
-        per_page = 10
-        start = (page - 1) * per_page
-        end = start + per_page
-        total_pages = (len(znamky) + per_page - 1) // per_page
-
-    except Exception as e:
-        print(traceback.format_exc())
-        return render_template("error.html", message="")
-
-    # Render the template
-    return render_template("home.html", subjects=subjects, znamky=znamky[start:end], current=page, total=total_pages)
-
-# Portfolio
-
-
 @app.route('/portfolio')
 def portfolio():
     """Student prtfolio endpoint
@@ -492,19 +488,18 @@ def portfolio():
         student_id = flask_session_custom.get('studentId')
 
         if not saved_cookies or not student_id:
-            return redirect(url_for('func'))
+            return redirect(url_for("login"))
         session = requests.Session()
         session.verify = certificate
         session.cookies.update(saved_cookies)
 
-        response = session.get(
-            f"https://is.psjg.cz/achievement/view/{student_id}")
-        if response.status_code == 200:
+        response = session.get(f"https://is.psjg.cz/achievement/view/{student_id}", headers=headers)
 
+        if response.status_code == 200:
             # Check for old cookies
             if 'id="frm-signInForm-name"' in response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
-                return redirect(url_for('func'))
+                return redirect(url_for("login"))
 
             # Render the template
             return render_template("portfolio.html", portfolio=get_portfolio(text=response.text))
@@ -527,7 +522,7 @@ def zkouseni():
 
         # Make sure it exists
         if not student_id:
-            return redirect(url_for('func'))
+            return redirect(url_for("login"))
 
     except Exception as e:
         print(traceback.format_exc())
@@ -542,7 +537,7 @@ def logout():
     """Logout. Redirect to login
     """
     flask_session_custom.clear()
-    return redirect(url_for('func'))
+    return redirect(url_for("login"))
 
 
 if __name__ == "__main__":

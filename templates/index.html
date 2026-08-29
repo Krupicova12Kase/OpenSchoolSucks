@@ -14,7 +14,7 @@
         <img src="{{ url_for('static',filename='images/psjg.png') }}" alt="Logo" class="logo">
         <div class="container">
             <h1>Přihlásit se</h1>
-            {{error}}
+            <div class="error">{{error}}</div>
             <form method="post" class="subcontainer">
                 <label for="name" class="grid1">Uživatelské jméno:</label>
                 <input type="text" id="username" name="username" required>

@@ -126,7 +126,11 @@ a[target=_blank]::after {
 @media (max-width: 768px) {
 
     .grid2-main,
-    .grid3-main,
+    .grid3-main {
+        padding: 16px 32px;
+        margin-top: calc(var(--padding) + var(--navbar-height));
+    }
+
     .grid4-main {
         padding: 16px 32px;
     }
