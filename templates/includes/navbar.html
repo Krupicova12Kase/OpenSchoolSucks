@@ -6,8 +6,10 @@
     </div>
 
     <div id="sidenav" class="sidenav">
-        <form method="post" onchange='if(this.value != 0) { this.form.submit(); }'>
-            <select name="year">
+        <form name="semester" method="post" id="semester">
+            <select name="year" onchange='if(this.value != 0) {
+             //this.form.submit();
+              }'>
                 {% for i in semesters%}
                 <option>{{ i }}</option>
                 {%endfor%}
@@ -29,12 +31,9 @@
         const openButton = document.getElementById("openButton");
 
         function Nav() {
-            console.log(sidenav.style.width)
             if (sidenav.style.width === "0px" || !sidenav.style.width) {
-                console.log("67")
                 sidenav.style.width = "240px";
             } else {
-                console.log("69")
                 sidenav.style.width = "0px";
             }
         }
@@ -52,6 +51,11 @@
             if (isOpen && !clickedInsideNav && !clickedOpenButton) {
                 closeNav();
             }
+        });
+
+        const form = document.getElementById("semester")
+        form.addEventListener("submit", function (event) {
+            console.log("67")
         });
     </script>
 </nav>

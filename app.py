@@ -261,12 +261,47 @@ def get_semesters(text: str) -> list[str]:
     soup = BeautifulSoup(text, "html.parser")
     select = soup.find_all("select", id="frm-switchSemester-semester")
     option_elements = []
-    
+
     for option in select[0]:
         option_elements.append(option.text)
-    
+
     return option_elements
 
+def get_semester_mappings(semester:str) -> dict:
+    # 2021/22 - První pololetí
+    semester = semester.strip()
+    try:
+        number = int(semester[2:semester.find("/")]) - 18
+        #if "d" in semester:
+            
+        
+        return number * 2 + 1 if not "D" in semester else number * 2 + 2
+    except ValueError:
+        return -1
+
+test = [
+    "2018/19 - První pololetí",
+    "2018/19 - Druhé pololetí",
+    "2019/20 - První pololetí",
+    "2019/20 - Druhé pololetí",
+    "2020/21 - První pololetí",
+    "2020/21 - Druhé pololetí",
+    "2021/22 - První pololetí",
+    "2021/22 - Druhé pololetí",
+    "2022/23 - První pololetí",
+    "2022/23 - Druhé pololetí",
+    "2023/24 - První pololetí",
+    "2023/24 - Druhé pololetí",
+    "2024/25 - První pololetí",
+    "2024/25 - Druhé pololetí",
+    "2025/26 - První pololetí",
+    "2025/26 - Druhé pololetí",
+    "2026/27 - První pololetí",
+    "2026/27 - Druhé pololetí",
+]
+for i in test:
+    print(get_semester_mappings(i))
+    
 
 def znamka_from_percentage(percentage) -> int | str:
     """Gets number grade from percentage. Returns 0 if percentrage is too low / too high
@@ -346,10 +381,8 @@ def login():
                 # Get subjects from HTML response and write them to CSV file
                 fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka", "Výsledná známka"]  # List of column names for CSV file
                 subjects = get_csv_subjects(response.text, fieldnames).values.tolist()
-                print(subjects)
                 flask_session_custom["subjects"] = subjects
                 return redirect(url_for("home"))
-
             else:
                 return render_template("error.html", error=f"response code {response.status_code}", traceback="")
 
@@ -363,11 +396,16 @@ def login():
         return render_template("error.html", message="")
 
 
-@app.route('/home')
+@app.route('/home', methods=["POST", "GET"])
 def home():
     """Home page. Displays grades and redirects to subjects. Uses data from main endpoint
     """
     try:
+        if request.method == "POST":
+            print(request.form.get("year"))
+            # username = request.form.get("username")
+            # password = request.form.get("password")
+
         # Get subjects from saved cookies
         subjects = flask_session_custom.get("subjects")
         saved_cookies = flask_session_custom.get('cookies')
@@ -431,7 +469,7 @@ def home():
             # semesters
             semesters = get_semesters(mainpage_response.text)
             flask_session_custom["semesters"] = semesters
-            
+
             # Render the template
             return render_template("home.html", subjects=subjects_display, znamky=csvlist[start:end], current=page, total=total_pages)
         else:
@@ -564,11 +602,13 @@ def logout():
     flask_session_custom.clear()
     return redirect(url_for("login"))
 
+
 @app.context_processor
 def inject_semesters():
     return {
         "semesters": flask_session_custom.get("semesters", [])
     }
+
 
 if __name__ == "__main__":
     app.run(debug=(os.environ.get('DEBUG') == 'True'))
