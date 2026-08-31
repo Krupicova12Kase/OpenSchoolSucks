@@ -8,7 +8,7 @@
     <div id="sidenav" class="sidenav">
         <form name="semester" method="post" id="semester">
             <select name="year" onchange='if(this.value != 0) {
-             //this.form.submit();
+             this.form.submit();
               }'>
                 {% for i in semesters%}
                 <option>{{ i }}</option>

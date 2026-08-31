@@ -120,7 +120,7 @@ def get_info(text: str) -> int:
 
     href = search[0].a["href"]
     try:
-        student_id = int(href[href.rfind("/") + 1:])
+        student_id = int(href[href.rfind("/") + 1:href.find("?") if "?" in href else None])
     except ValueError:
         abort(500, f"Failed to convert to integer {href[href.rfind("/") + 1:]}")
 
@@ -267,17 +267,16 @@ def get_semesters(text: str) -> list[str]:
 
     return option_elements
 
-def get_semester_mappings(semester:str) -> dict:
+
+def get_semester_number(semester: str) -> int:
     # 2021/22 - První pololetí
     semester = semester.strip()
     try:
         number = int(semester[2:semester.find("/")]) - 18
-        #if "d" in semester:
-            
-        
         return number * 2 + 1 if not "D" in semester else number * 2 + 2
     except ValueError:
         return -1
+
 
 test = [
     "2018/19 - První pololetí",
@@ -299,9 +298,7 @@ test = [
     "2026/27 - První pololetí",
     "2026/27 - Druhé pololetí",
 ]
-for i in test:
-    print(get_semester_mappings(i))
-    
+
 
 def znamka_from_percentage(percentage) -> int | str:
     """Gets number grade from percentage. Returns 0 if percentrage is too low / too high
@@ -351,14 +348,12 @@ def split_percentage_and_points(text: str) -> tuple[int, int]:
 
 @app.route('/', methods=["GET", "POST"])
 def login():
-    """Main endpoint. Handles login, getting student it, grades
+    """Main endpoint. Handles login and some basic info
     """
     try:
         session = requests.Session()
         session.verify = certificate
-        # -------------------------------
-        # LOGIN
-        # -------------------------------
+
         if request.method == "GET":
             return render_template("index.html")
 
@@ -402,9 +397,8 @@ def home():
     """
     try:
         if request.method == "POST":
-            print(request.form.get("year"))
-            # username = request.form.get("username")
-            # password = request.form.get("password")
+            flask_session_custom["semester"] = get_semester_number(request.form.get("year"))
+            print(flask_session_custom["semester"])
 
         # Get subjects from saved cookies
         subjects = flask_session_custom.get("subjects")
@@ -418,7 +412,9 @@ def home():
         session.cookies.update(saved_cookies)
 
         # Read subjects
-        mainpage_response = session.get("https://is.psjg.cz/", headers=headers)
+        mainpage_response = session.get("https://is.psjg.cz/",
+                                        params={"semesterId": flask_session_custom.get("semester")},
+                                        headers=headers)
         if mainpage_response.status_code == 200:
             if 'id="frm-signInForm-name"' in mainpage_response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
@@ -430,8 +426,10 @@ def home():
         responseGrid = session.get("https://is.psjg.cz",
                                    params={
                                        "studentScoreGrid-id": 1,
-                                       "do": "studentScoreGrid-export"
-                                   }, headers=headers)
+                                       "do": "studentScoreGrid-export",
+                                       "semesterId": flask_session_custom.get("semester")
+                                   },
+                                   headers=headers)
         # Results ig
         if responseGrid.status_code == 200:
             df = csv_to_dataframe(text=responseGrid.text)
