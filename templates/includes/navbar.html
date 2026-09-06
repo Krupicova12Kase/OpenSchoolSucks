@@ -6,12 +6,14 @@
     </div>
 
     <div id="sidenav" class="sidenav">
-        <form name="semester" method="post" id="semester">
-            <select name="year" onchange='if(this.value != 0) {
-             this.form.submit();
-              }'>
-                {% for i in semesters%}
+        <form name="semester" method="post" id="semester" class="semesterform">
+            <select name="year" onchange='if(this.value != 0) {this.form.submit();}' id="semesterselect">
+                {% for x, i in semesters %}
+                {% if x + 1 == selectedSemester %}
+                <option selected>{{ i }}</option>
+                {% else %}
                 <option>{{ i }}</option>
+                {% endif %}
                 {%endfor%}
             </select>
         </form>
@@ -29,6 +31,8 @@
     <script>
         const sidenav = document.getElementById("sidenav");
         const openButton = document.getElementById("openButton");
+        const semesterForm = document.getElementById("semester")
+        const SemesterSelect = document.getElementById("semesterselect")
 
         function Nav() {
             if (sidenav.style.width === "0px" || !sidenav.style.width) {
@@ -46,7 +50,13 @@
             const isOpen = sidenav.style.width === "200px";
             const clickedInsideNav = sidenav.contains(event.target);
             const clickedOpenButton = openButton.contains(event.target);
+            const clickedSemesterForm = semesterForm.contains(event.target)
 
+            if (clickedSemesterForm && SemesterSelect.style.borderRadius === "6px") {
+                SemesterSelect.style.borderRadius = "0px"
+            } else {
+                SemesterSelect.style.borderRadius = "6px"
+            }
             // close when clicked outside
             if (isOpen && !clickedInsideNav && !clickedOpenButton) {
                 closeNav();
@@ -57,5 +67,6 @@
         form.addEventListener("submit", function (event) {
             console.log("67")
         });
+
     </script>
 </nav>

@@ -278,28 +278,6 @@ def get_semester_number(semester: str) -> int:
         return -1
 
 
-test = [
-    "2018/19 - První pololetí",
-    "2018/19 - Druhé pololetí",
-    "2019/20 - První pololetí",
-    "2019/20 - Druhé pololetí",
-    "2020/21 - První pololetí",
-    "2020/21 - Druhé pololetí",
-    "2021/22 - První pololetí",
-    "2021/22 - Druhé pololetí",
-    "2022/23 - První pololetí",
-    "2022/23 - Druhé pololetí",
-    "2023/24 - První pololetí",
-    "2023/24 - Druhé pololetí",
-    "2024/25 - První pololetí",
-    "2024/25 - Druhé pololetí",
-    "2025/26 - První pololetí",
-    "2025/26 - Druhé pololetí",
-    "2026/27 - První pololetí",
-    "2026/27 - Druhé pololetí",
-]
-
-
 def znamka_from_percentage(percentage) -> int | str:
     """Gets number grade from percentage. Returns 0 if percentrage is too low / too high
 
@@ -373,10 +351,6 @@ def login():
                 if "Neplatné přihlašovací jméno nebo heslo" in response.text:
                     return render_template("index.html", error="Neplatné přihlašovací jméno nebo heslo")
 
-                # Get subjects from HTML response and write them to CSV file
-                fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka", "Výsledná známka"]  # List of column names for CSV file
-                subjects = get_csv_subjects(response.text, fieldnames).values.tolist()
-                flask_session_custom["subjects"] = subjects
                 return redirect(url_for("home"))
             else:
                 return render_template("error.html", error=f"response code {response.status_code}", traceback="")
@@ -398,13 +372,13 @@ def home():
     try:
         if request.method == "POST":
             flask_session_custom["semester"] = get_semester_number(request.form.get("year"))
-            print(flask_session_custom["semester"])
+            return redirect(url_for("home"))
 
         # Get subjects from saved cookies
         subjects = flask_session_custom.get("subjects")
         saved_cookies = flask_session_custom.get('cookies')
 
-        if not subjects or not saved_cookies:
+        if not saved_cookies:
             return redirect(url_for("login"))
 
         session = requests.Session()
@@ -415,6 +389,11 @@ def home():
         mainpage_response = session.get("https://is.psjg.cz/",
                                         params={"semesterId": flask_session_custom.get("semester")},
                                         headers=headers)
+
+        # Get subjects from HTML response and write them to CSV file
+        fieldnames = ["id", "Předmět", "Bodové hodnocení", "Známka", "Výsledná známka"]  # List of column names for CSV file
+        subjects = get_csv_subjects(mainpage_response.text, fieldnames).values.tolist()
+
         if mainpage_response.status_code == 200:
             if 'id="frm-signInForm-name"' in mainpage_response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
@@ -453,8 +432,8 @@ def home():
                 subjects_display.append([row[0], row[1], row[3], row[4], percentage, points])
 
             # Check for no grades or subjects
-            if len(subjects) == 0:
-                subjects.append(-1)
+            if len(subjects_display) == 0:
+                subjects_display.append(-1)
             if len(csvlist) == 0:
                 csvlist.append(-1)
 
@@ -500,8 +479,9 @@ def subject(subject_id: int):
                                    "studentExamOverview-examGrid-id": "1",
                                    "studentId": student_id,
                                    "subjectId": subject_id,
-                                   "do": "studentExamOverview-examGrid-export"
-                               }, headers=headers)
+                                   "do": "studentExamOverview-examGrid-export",
+                                   "semesterId": flask_session_custom.get("semester")
+                               }, headers=headers,)
 
         if response.status_code == 200:
 
@@ -603,8 +583,11 @@ def logout():
 
 @app.context_processor
 def inject_semesters():
+    semesters = flask_session_custom.get("semesters", [])
+    print(list(enumerate(semesters, 0)))
     return {
-        "semesters": flask_session_custom.get("semesters", [])
+        "semesters": list(enumerate(semesters)),
+        "selectedSemester": flask_session_custom.get("semester", -1)
     }
 
 
