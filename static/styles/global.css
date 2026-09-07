@@ -139,10 +139,12 @@ a[target=_blank]::after {
 /* MOBILE */
 @media (max-width: 768px) {
 
-    .grid2-main,
-    .grid3-main {
+    .grid2-main {
         padding: 16px 32px;
         margin-top: calc(var(--padding) + var(--navbar-height));
+    }
+    .grid3-main {
+        padding: 16px 32px;
     }
 
     .grid4-main {

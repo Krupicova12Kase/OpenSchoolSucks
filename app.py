@@ -409,7 +409,7 @@ def home():
                                        "semesterId": flask_session_custom.get("semester")
                                    },
                                    headers=headers)
-        # Results ig
+        # Results
         if responseGrid.status_code == 200:
             df = csv_to_dataframe(text=responseGrid.text)
             znamky = []
@@ -500,13 +500,9 @@ def subject(subject_id: int):
             for x, row in enumerate(csvlist):
                 znamky.append(znamka_from_percentage(row[5]))
             df["Znamka"] = znamky
+            df = df.fillna("")
             csvlist = df.values.tolist()
 
-            # Get rid of nan values
-            for x, row in enumerate(csvlist):
-                for y, item in enumerate(row):
-                    if pd.isna(item):
-                        csvlist[x][y] = ""
             return render_template("znamka.html", znamky=csvlist)
         else:
             return render_template("error.html", error=f"Http code {response.status_code}", traceback="")
@@ -584,7 +580,6 @@ def logout():
 @app.context_processor
 def inject_semesters():
     semesters = flask_session_custom.get("semesters", [])
-    print(list(enumerate(semesters, 0)))
     return {
         "semesters": list(enumerate(semesters)),
         "selectedSemester": flask_session_custom.get("semester", -1)

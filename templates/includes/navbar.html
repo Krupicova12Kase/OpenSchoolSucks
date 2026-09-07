@@ -50,9 +50,9 @@
             const isOpen = sidenav.style.width === "200px";
             const clickedInsideNav = sidenav.contains(event.target);
             const clickedOpenButton = openButton.contains(event.target);
-            const clickedSemesterForm = semesterForm.contains(event.target)
+            const clickedSemesterSelect = SemesterSelect.contains(event.target)
 
-            if (clickedSemesterForm && SemesterSelect.style.borderRadius === "6px") {
+            if (clickedSemesterSelect && SemesterSelect.style.borderRadius === "6px") {
                 SemesterSelect.style.borderRadius = "0px"
             } else {
                 SemesterSelect.style.borderRadius = "6px"
@@ -61,11 +61,6 @@
             if (isOpen && !clickedInsideNav && !clickedOpenButton) {
                 closeNav();
             }
-        });
-
-        const form = document.getElementById("semester")
-        form.addEventListener("submit", function (event) {
-            console.log("67")
         });
 
     </script>
