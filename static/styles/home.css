@@ -159,7 +159,6 @@ a:hover {
     box-sizing: border-box;
     border-right: var(--borders);
     border-left: var(--borders);
-    margin-right: 5px;
 }
 
 .grid-znamka-3 {
@@ -171,13 +170,13 @@ a:hover {
     /*procenta*/
     grid-area: 1 / 5 / 2 / 6;
     border-right: var(--borders);
+    border-left: var(--borders);
 }
 
 .grid-znamka-5 {
     /*body*/
     grid-area: 1 / 6 / 2 / 7;
     border-right: var(--borders);
-    padding-left: 10px;
     height: auto;
 }
 
@@ -250,7 +249,7 @@ a:hover {
         align-self: center;
         align-content: center;
         padding: 0 32px;
-        margin-top: 0;
+        margin-top: calc(var(--padding) + var(--navbar-height));
     }
 
     .grid3-main {
@@ -267,6 +266,7 @@ a:hover {
     .grid4-main {
         grid-area: 4 / 1 / 5 / 2;
         padding: 0 32px;
+        margin-bottom: 16px;
     }
 
     /* grid with subjects */
@@ -310,7 +310,6 @@ a:hover {
     }
 
     /* grid with grades */
-
     .grid-znamka {
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: 1fr 1fr 1fr 1fr;
@@ -339,6 +338,7 @@ a:hover {
 
     .grid-znamka-4 {
         grid-area: 3 / 2 / 4 / 3;
+        border-left: 0px;
     }
 
     .grid-znamka-5 {

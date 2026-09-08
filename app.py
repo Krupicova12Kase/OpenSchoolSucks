@@ -248,7 +248,7 @@ def get_portfolio(text: str) -> dict:
     return portfoliodict
 
 
-def get_semesters(text: str) -> list[str]:
+def get_semesters(text: str) -> tuple[list[str], str]:
     """Get list of semesters. Example return: [2026/27 - První pololetí, 2026/27 - Druhé pololetí]
 
     Args:
@@ -265,7 +265,8 @@ def get_semesters(text: str) -> list[str]:
     for option in select[0]:
         option_elements.append(option.text)
 
-    return option_elements
+    selected = soup.find_all("option", selected=True)[0].text
+    return option_elements, selected
 
 
 def get_semester_number(semester: str) -> int:
@@ -377,6 +378,7 @@ def home():
         # Get subjects from saved cookies
         subjects = flask_session_custom.get("subjects")
         saved_cookies = flask_session_custom.get('cookies')
+        semester = flask_session_custom.get("semester")
 
         if not saved_cookies:
             return redirect(url_for("login"))
@@ -444,8 +446,10 @@ def home():
             total_pages = (len(csvlist) + per_page - 1) // per_page
 
             # semesters
-            semesters = get_semesters(mainpage_response.text)
+            semesters, selected = get_semesters(mainpage_response.text)
             flask_session_custom["semesters"] = semesters
+            if not semester:
+                flask_session_custom["semester"] = get_semester_number(selected)
 
             # Render the template
             return render_template("home.html", subjects=subjects_display, znamky=csvlist[start:end], current=page, total=total_pages)
