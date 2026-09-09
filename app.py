@@ -262,6 +262,9 @@ def get_semesters(text: str) -> tuple[list[str], str]:
     select = soup.find_all("select", id="frm-switchSemester-semester")
     option_elements = []
 
+    if len(select) < 1:
+        abort(500)
+        
     for option in select[0]:
         option_elements.append(option.text)
 
@@ -368,7 +371,7 @@ def login():
 
 @app.route('/home', methods=["POST", "GET"])
 def home():
-    """Home page. Displays grades and redirects to subjects. Uses data from main endpoint
+    """Home page. Displays grades and redirects to subjects
     """
     try:
         if request.method == "POST":
@@ -408,7 +411,7 @@ def home():
                                    params={
                                        "studentScoreGrid-id": 1,
                                        "do": "studentScoreGrid-export",
-                                       "semesterId": flask_session_custom.get("semester")
+                                       "semesterId": semester
                                    },
                                    headers=headers)
         # Results
@@ -460,7 +463,7 @@ def home():
         return render_template("error.html", message="")
 
 
-@app.route('/subject/<subject_id>')
+@app.route('/subject/<subject_id>', methods=["GET", "POST"])
 def subject(subject_id: int):
     """Get grades from specific subject
 
@@ -470,7 +473,12 @@ def subject(subject_id: int):
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
+        semester = flask_session_custom.get("semester")
 
+        if request.method == "POST":
+            flask_session_custom["semester"] = get_semester_number(request.form.get("year"))
+            return redirect(url_for("home"))
+        
         if not saved_cookies or not student_id:
             return redirect(url_for("login"))
 
@@ -484,7 +492,7 @@ def subject(subject_id: int):
                                    "studentId": student_id,
                                    "subjectId": subject_id,
                                    "do": "studentExamOverview-examGrid-export",
-                                   "semesterId": flask_session_custom.get("semester")
+                                   "semesterId": semester
                                }, headers=headers,)
 
         if response.status_code == 200:
@@ -506,6 +514,12 @@ def subject(subject_id: int):
             df["Znamka"] = znamky
             df = df.fillna("")
             csvlist = df.values.tolist()
+            
+            # semesters
+            if not semester:
+                semesters, selected = get_semesters(response.text)
+                flask_session_custom["semesters"] = semesters
+                flask_session_custom["semester"] = get_semester_number(selected)
 
             return render_template("znamka.html", znamky=csvlist)
         else:
@@ -520,27 +534,40 @@ def subject(subject_id: int):
         return render_template("error.html", message="")
 
 
-@app.route('/portfolio')
+@app.route('/portfolio', methods=["GET", "POST"])
 def portfolio():
     """Student prtfolio endpoint
     """
     try:
         saved_cookies = flask_session_custom.get('cookies')
         student_id = flask_session_custom.get('studentId')
+        semester = flask_session_custom.get("semester")
 
+        if request.method == "POST":
+            flask_session_custom["semester"] = get_semester_number(request.form.get("year"))
+            print(get_semester_number(request.form.get("year")))
+            return redirect(url_for("portfolio"))
+        
         if not saved_cookies or not student_id:
             return redirect(url_for("login"))
+        
         session = requests.Session()
         session.verify = certificate
         session.cookies.update(saved_cookies)
 
-        response = session.get(f"https://is.psjg.cz/achievement/view/{student_id}", headers=headers)
+        response = session.get(f"https://is.psjg.cz/achievement/view/{student_id}", params={"semesterId": semester}, headers=headers)
 
         if response.status_code == 200:
             # Check for old cookies
             if 'id="frm-signInForm-name"' in response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
                 return redirect(url_for("login"))
+            
+            # semesters
+            semesters, selected = get_semesters(response.text)
+            flask_session_custom["semesters"] = semesters
+            if not semester:
+                flask_session_custom["semester"] = get_semester_number(selected)
 
             # Render the template
             return render_template("portfolio.html", portfolio=get_portfolio(text=response.text))
