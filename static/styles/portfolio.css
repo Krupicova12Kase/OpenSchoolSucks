@@ -53,9 +53,12 @@
 .grid2 {
     grid-area: 1 / 2 / 2 / 3;
     text-align: right;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
     border-bottom: 2px solid black;
     padding: 0px 8px;
-    /**/
+    bottom: 0px;
 }
 
 .grid3 {
@@ -113,7 +116,7 @@ hr {
 }
 
 @media (max-width: 768px) {
-    .grid2-main {
+    body {
         padding: 15px 20px;
     }
 }

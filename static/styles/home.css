@@ -1,3 +1,8 @@
+body {
+    padding: 0;
+    margin-top: 0;
+}
+
 :root {
     --grid-column-padding: 0 10px;
 }
