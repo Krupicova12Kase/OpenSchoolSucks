@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [1.2.0] - 17.9.2026
+
+## Added
+
+- Changelog page in hamburger menu
+- new libraries markdown and nh3 (for the changelog page)
+
 ## [1.1.0] - 10.9.2026
 
 ### Added

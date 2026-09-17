@@ -1,0 +1,10 @@
+.changelog a:link,
+.changelog a:visited,
+.changelog a:active {
+    color: #274aac;
+    text-decoration: none;
+}
+
+.changelog a:hover {
+    color: #FE7743;
+}

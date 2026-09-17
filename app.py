@@ -21,6 +21,8 @@ from dotenv import load_dotenv
 from colorama import init, Fore
 from cachelib import FileSystemCache
 from cert_chain_resolver.api import resolve
+from markdown import markdown
+import nh3
 
 # Load environment variables
 load_dotenv(override=True)
@@ -264,7 +266,7 @@ def get_semesters(text: str) -> tuple[list[str], str]:
 
     if len(select) < 1:
         abort(500)
-        
+
     for option in select[0]:
         option_elements.append(option.text)
 
@@ -478,7 +480,7 @@ def subject(subject_id: int):
         if request.method == "POST":
             flask_session_custom["semester"] = get_semester_number(request.form.get("year"))
             return redirect(url_for("home"))
-        
+
         if not saved_cookies or not student_id:
             return redirect(url_for("login"))
 
@@ -514,7 +516,7 @@ def subject(subject_id: int):
             df["Znamka"] = znamky
             df = df.fillna("")
             csvlist = df.values.tolist()
-            
+
             # semesters
             if not semester:
                 semesters, selected = get_semesters(response.text)
@@ -547,10 +549,10 @@ def portfolio():
             flask_session_custom["semester"] = get_semester_number(request.form.get("year"))
             print(get_semester_number(request.form.get("year")))
             return redirect(url_for("portfolio"))
-        
+
         if not saved_cookies or not student_id:
             return redirect(url_for("login"))
-        
+
         session = requests.Session()
         session.verify = certificate
         session.cookies.update(saved_cookies)
@@ -562,7 +564,7 @@ def portfolio():
             if 'id="frm-signInForm-name"' in response.text:
                 flask_session_custom.pop('cookies', None)  # Delete old cookies
                 return redirect(url_for("login"))
-            
+
             # semesters
             semesters, selected = get_semesters(response.text)
             flask_session_custom["semesters"] = semesters
@@ -598,6 +600,22 @@ def zkouseni():
 
     # Render the template
     return render_template("zkouseni.html")
+
+
+@app.route("/changelog")
+def changelog():
+    content = ""
+    try:
+        with open("CHANGELOG.md", "r")as f:
+            md = f.read()
+            html = markdown(md)
+            content = nh3.clean(html)
+            return render_template("changelog.html", content=content)
+
+    except FileNotFoundError:
+        content = "Changelog file not found"
+
+    return render_template("changelog.html", content=content)
 
 
 @app.route("/logout")
